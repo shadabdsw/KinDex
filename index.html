@@ -1,0 +1,2156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KinDex - Your Family as Collectible Cards</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23fff4bd'/%3E%3Cstop offset='.45' stop-color='%23ffcb3d'/%3E%3Cstop offset='1' stop-color='%23e08a1e'/%3E%3C/linearGradient%3E%3ClinearGradient id='v' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23c3a8ff'/%3E%3Cstop offset='1' stop-color='%236a4bd8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='6' y='11' width='22' height='30' rx='4' fill='url(%23v)' transform='rotate(-14 17 26)'/%3E%3Cg transform='rotate(9 30 22)'%3E%3Crect x='19' y='7' width='22' height='30' rx='4' fill='url(%23g)'/%3E%3Cpath d='M30 15l5.5 7-5.5 7-5.5-7z' fill='%231b1606'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+/* ---------- Base ---------- */
+:root {
+  --bg: #0e1322;
+  --ink: #eef2ff;
+  --muted: #9aa6c7;
+  --line: rgba(226, 232, 255, .5);
+  --accent: #ffcb3d;
+  --card-ink: #1f1b14;
+  --gold1: #f9e27b; --gold2: #d6a520; --gold3: #fff4bd;
+  --silver1: #e7eaf0; --silver2: #9aa3b2;
+  --stars:
+    radial-gradient(circle at 18% 28%, #fff 0 .12em, transparent .2em),
+    radial-gradient(circle at 72% 16%, #fff 0 .1em, transparent .18em),
+    radial-gradient(circle at 86% 58%, #fff 0 .12em, transparent .2em),
+    radial-gradient(circle at 28% 74%, #fff 0 .08em, transparent .16em),
+    radial-gradient(circle at 60% 82%, #fff 0 .1em, transparent .18em),
+    radial-gradient(circle at 10% 52%, #fff 0 .08em, transparent .16em),
+    radial-gradient(circle at 44% 10%, #fff 0 .08em, transparent .16em);
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 14px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+button { font: inherit; color: inherit; }
+[hidden] { display: none !important; }
+/* phones: no blue tap box; :active tint instead */
+html { -webkit-tap-highlight-color: transparent; }
+
+/* ---------- Header ---------- */
+.bar {
+  flex: none; min-height: 56px; display: flex; align-items: center; justify-content: space-between;
+  gap: 10px 16px; padding: 8px 16px; flex-wrap: wrap;
+  background: rgba(14, 19, 34, .92); border-bottom: 1px solid rgba(255,255,255,.08); z-index: 5;
+}
+body.home .bar { display: none; }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.home-link { display: flex; align-items: center; gap: 10px; flex: none; color: inherit; text-decoration: none; border-radius: 8px; }
+.home-link:hover .wordmark { filter: brightness(1.15); }
+.home-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.brand .logo { flex: none; width: 30px; height: 30px; }
+.btn.dl { display: inline-flex; align-items: center; gap: 7px; }
+.btn.dl .ico { width: 16px; height: 16px; flex: none; }
+.brand .file { color: var(--muted); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wordmark { font-weight: 900; font-size: 21px; letter-spacing: -.01em; line-height: 1; white-space: nowrap; }
+.wordmark span {
+  background: linear-gradient(135deg, var(--gold3), var(--accent) 45%, #ff9f43);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  padding-right: .1em; margin-right: -.1em;
+}
+.tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.seg { display: inline-flex; border: 1px solid rgba(255,255,255,.14); border-radius: 10px; overflow: hidden; }
+.seg button { background: transparent; border: 0; padding: 6px 12px; cursor: pointer; min-width: 34px; }
+.seg button + button { border-left: 1px solid rgba(255,255,255,.14); }
+.seg button.on { background: var(--accent); color: #1b1606; font-weight: 700; }
+@media (hover: hover) { .seg button:hover:not(.on) { background: rgba(255,255,255,.08); } }
+.seg button:active:not(.on) { background: rgba(255,255,255,.08); }
+#search {
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14); color: var(--ink);
+  border-radius: 10px; padding: 6px 12px; width: 190px; font: inherit;
+}
+.btn { border-radius: 10px; padding: 8px 16px; cursor: pointer; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.06); }
+/* hover tint: mouse only (no sticky tint on phones); press tint everywhere */
+@media (hover: hover) { .btn:hover { background: rgba(255,255,255,.12); } }
+.btn:active { background: rgba(255,255,255,.12); }
+.btn.primary { background: var(--accent); color: #1b1606; border-color: transparent; font-weight: 700; }
+@media (hover: hover) { .btn.primary:hover { filter: brightness(1.08); } }
+.btn.primary:active { filter: brightness(1.08); }
+.btn.small { padding: 6px 12px; }
+
+/* ---------- Tree and collection ---------- */
+main { flex: 1; position: relative; min-height: 0; }
+.viewport {
+  position: absolute; inset: 0; overflow: hidden; touch-action: none; cursor: grab;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(90,110,200,.18), transparent 60%),
+    radial-gradient(rgba(255,255,255,.07) 1px, transparent 1px) 0 0 / 24px 24px,
+    var(--bg);
+}
+.viewport.grabbing { cursor: grabbing; }
+.world { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.world.anim { transition: transform .55s cubic-bezier(.2,.7,.2,1); }
+.links { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
+.links path { fill: none; stroke: var(--line); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.links path.couple { stroke: var(--accent); stroke-width: 4; }
+.links path.couple.former { stroke-dasharray: 8 9; opacity: .65; }
+.gen-label {
+  position: absolute; left: 24px; width: 96px; text-align: center; color: var(--muted);
+  font-weight: 800; letter-spacing: .08em; font-size: 15px;
+}
+.gen-label small { display: block; font-weight: 600; letter-spacing: .04em; font-size: 11px; color: #c9a43a; }
+
+.deck { position: absolute; inset: 0; overflow: auto; padding: 24px 16px 60px; }
+.deck-gen { max-width: 1200px; margin: 0 auto 32px; }
+.deck-gen h2 { font-size: 18px; margin: 0 0 14px; display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+.deck-gen h2 span { color: var(--muted); font-size: 13px; font-weight: 600; }
+.deck-gen h2 .tier-badge { font-size: 12px; font-weight: 800; letter-spacing: .03em; padding: 3px 10px; border-radius: 99px; color: #1b1606; }
+.tier-badge.t0 { background: #cdbda4; }
+.tier-badge.t1 { background: linear-gradient(135deg, #fdfdff, #b9c1cd); }
+.tier-badge.t2 { background: linear-gradient(135deg, #fff4bd, #e0ae2c); }
+.tier-badge.t3 { background: linear-gradient(135deg, #e2ccff, #9a6bf0); }
+.tier-badge.t4 { background: linear-gradient(90deg, #ffe27a, #ff9bd2, #9fd8ff, #a8ffc0); }
+.deck-gen h2 .tier-badge.t5 { background: #140e30; color: #ffd24d; box-shadow: 0 0 0 1px #ffd24d, 0 0 12px rgba(255,210,77,.5); }
+.deck-grid { display: flex; flex-wrap: wrap; gap: 22px; }
+.deck .card { position: relative; }
+
+/* ---------- Welcome ---------- */
+.welcome {
+  position: absolute; inset: 0; overflow: auto; padding: 40px 16px 32px;
+  background:
+    radial-gradient(ellipse 60% 50% at 75% 20%, rgba(150,110,255,.16), transparent 70%),
+    radial-gradient(ellipse 50% 40% at 15% 10%, rgba(255,203,61,.10), transparent 70%),
+    var(--bg);
+}
+.welcome { display: flex; flex-direction: column; }
+.welcome-in { max-width: 1080px; width: 100%; margin: auto; }
+.welcome p { color: var(--muted); margin: 0; }
+.intro { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 32px; align-items: center; }
+.logo-big { display: flex; align-items: center; gap: 14px; }
+.logo-big .logo { width: clamp(52px, 9vw, 72px); height: auto; flex: none; }
+.logo-big .wordmark { font-size: clamp(46px, 9vw, 76px); letter-spacing: -.03em; }
+.meaning { margin: 14px 0 0 !important; font-size: 15px; }
+.meaning b { color: var(--ink); }
+.meaning .eq { display: inline-block; padding: 1px 9px; margin-right: 6px; border-radius: 99px; font-size: 12.5px; font-weight: 800; color: #1b1606; background: var(--accent); }
+.intro h1 { font-size: clamp(22px, 3.2vw, 30px); line-height: 1.2; margin: 18px 0 0; max-width: 18em; }
+.intro .why { margin-top: 10px; font-size: 15.5px; max-width: 30em; }
+.welcome .actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 26px 0 14px; }
+.welcome .actions .btn { padding: 11px 18px; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.welcome .actions .ico { width: 18px; height: 18px; flex: none; }
+.btn.sample { border-color: rgba(255,203,61,.55); color: var(--accent); background: rgba(255,203,61,.06); font-weight: 600; }
+.btn.sample:hover { background: rgba(255,203,61,.14); }
+.privacy { padding: 14px 18px; margin-bottom: 30px; border-radius: 12px; text-align: center; background: rgba(127,214,154,.07); border: 1px solid rgba(127,214,154,.22); }
+.privacy p { color: #9fe0b0; font-size: 14.5px; }
+.privacy p.sub { color: #8fbf9d; font-size: 12.5px; margin-top: 3px; }
+.privacy b { color: #c8f0d4; }
+
+.site-foot { margin-top: 36px; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px 18px; font-size: 12.5px; color: var(--muted); }
+.site-foot button { background: none; border: 0; padding: 0; color: var(--muted); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; font-size: inherit; }
+.site-foot button:hover { color: var(--ink); }
+/* GitHub link: inline icon, nothing fetched */
+.site-foot a { display: inline-flex; align-items: center; gap: 5px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+.site-foot a:hover { color: var(--ink); }
+.legal { max-width: 520px; width: calc(100% - 32px); padding: 0; border-radius: 16px; border: 1px solid rgba(255,255,255,.14); background: #161c2e; color: var(--ink); }
+.legal-in { padding: 22px 24px; }
+.legal::backdrop { background: rgba(5,8,16,.75); backdrop-filter: blur(4px); }
+.legal h2 { margin: 0 0 12px; font-size: 19px; }
+.legal ul { margin: 0; padding-left: 20px; color: var(--muted); display: grid; gap: 8px; }
+.legal b { color: var(--ink); }
+.legal form { margin: 18px 0 0; text-align: right; }
+.hero { position: relative; height: 260px; width: 360px; max-width: 100%; margin: 0 auto; pointer-events: none; }
+.hero .card { top: 10px; left: 50%; margin-left: -80px; }
+.hero .card:nth-child(1) { transform: translateX(-100px) rotate(-12deg) translateY(16px); }
+.hero .card:nth-child(2) { z-index: 1; }
+.hero .card:nth-child(3) { transform: translateX(100px) rotate(12deg) translateY(16px); }
+
+.how { margin-top: 22px; padding-top: 26px; border-top: 1px solid rgba(255,255,255,.08); }
+.how h2 { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0 0 16px; }
+.steps { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.step { background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.09); border-radius: 14px; padding: 16px; }
+.step .num { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 900; color: #1b1606; background: var(--accent); }
+.step h3 { margin: 12px 0 4px; font-size: 16px; }
+.step p { font-size: 13.5px; line-height: 1.45; }
+.step b { color: var(--ink); }
+.step code { font-size: 12px; color: #9fd8ff; background: rgba(0,0,0,.3); padding: 1px 6px; border-radius: 5px; white-space: nowrap; }
+.step .note { font-size: 12.5px; margin-top: 8px; }
+.folder-hint {
+  margin: 10px 0 0; padding: 9px 11px; border-radius: 9px; overflow-x: auto;
+  background: rgba(0,0,0,.28); border: 1px solid rgba(255,255,255,.08); color: var(--ink); font-size: 11.5px; line-height: 1.55;
+}
+.folder-hint i { font-style: normal; color: #9fd8ff; }
+
+/* big screens scale up; narrow screens stack */
+@media (min-width: 1600px) and (min-height: 860px) { .welcome-in { zoom: 1.15; } }
+@media (min-width: 2100px) and (min-height: 1050px) { .welcome-in { zoom: 1.3; } }
+
+@media (max-width: 860px) {
+  .welcome { padding-top: 28px; }
+  .intro { grid-template-columns: minmax(0, 1fr); gap: 8px; text-align: center; }
+  .intro .hero-wrap { order: -1; }
+  .logo-big { justify-content: center; }
+  .intro h1, .intro .why { margin-left: auto; margin-right: auto; }
+  .welcome .actions { justify-content: center; }
+  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 420px) {
+  .hero { transform: scale(.82); transform-origin: top center; height: 220px; }
+  .welcome .actions .btn { flex: 1 1 100%; }
+  .steps { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- Cards (em-sized: mini 10px, big 21.25px) ---------- */
+.card {
+  position: absolute; width: 16em; height: 22.4em; font-size: 10px; padding: .55em; border-radius: 1em;
+  background: linear-gradient(135deg, var(--gold3), var(--gold1) 30%, var(--gold2) 70%, var(--gold1));
+  box-shadow: 0 .6em 1.6em rgba(0,0,0,.45);
+  color: var(--card-ink); cursor: pointer; user-select: none; -webkit-user-select: none;
+  transition: box-shadow .2s ease; overflow: hidden;
+  --frame: var(--gold2);
+}
+.card:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+/* mini hover: glow only, no transform (text flicker in Chrome/Edge) */
+.card.mini:hover { box-shadow: 0 0 0 .25em rgba(255,203,61,.9), 0 1em 2.2em rgba(0,0,0,.55); }
+.card.found { animation: found 1.1s ease 3; z-index: 2; }
+@keyframes found { 50% { box-shadow: 0 0 0 .8em rgba(255,203,61,.75), 0 .6em 1.6em rgba(0,0,0,.45); } }
+
+.card-in {
+  position: relative; height: 100%; border-radius: .55em; padding: .5em .6em;
+  display: flex; flex-direction: column; gap: .35em;
+  background: linear-gradient(165deg, color-mix(in srgb, var(--t1) 38%, #fffaf0), color-mix(in srgb, var(--t2) 30%, #fffaf0));
+}
+.c-head { display: flex; align-items: center; gap: .4em; min-height: 2.2em; flex: none; }
+.c-gen {
+  font-size: .8em; font-weight: 800; letter-spacing: .04em; white-space: nowrap;
+  background: rgba(0,0,0,.72); color: #fff; border-radius: 99px; padding: .1em .6em;
+}
+.c-name {
+  flex: 1; min-width: 0; font-weight: 800; font-size: 1.2em; line-height: 1.22; padding-bottom: .06em;
+  overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+}
+.c-type {
+  flex: none; width: 2em; height: 2em; border-radius: 50%; display: grid; place-items: center; font-size: 1.05em;
+  background: radial-gradient(circle at 35% 30%, #fff, var(--t1) 45%, var(--t2));
+  box-shadow: 0 0 0 .15em rgba(255,255,255,.85), 0 .1em .3em rgba(0,0,0,.35);
+}
+.c-art {
+  position: relative; flex: none; height: 10.6em; border-radius: .3em; overflow: hidden;
+  display: grid; place-items: center;
+  background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--t1) 55%, #fff), var(--t2) 85%);
+  box-shadow: inset 0 0 0 .25em var(--frame), inset 0 0 0 .4em rgba(255,255,255,.55);
+}
+.c-art .initials { font-size: 4.2em; font-weight: 900; color: #fff; letter-spacing: -.02em; text-shadow: 0 .05em .18em rgba(0,0,0,.35); }
+.c-art img { position: absolute; inset: .4em; width: calc(100% - .8em); height: calc(100% - .8em); object-fit: cover; border-radius: .15em; }
+/* memorial: fade placeholder art, never photos */
+.memorial .c-art:not(:has(img)) { filter: saturate(.45) sepia(.25); }
+.c-ribbon {
+  position: absolute; top: .5em; right: .5em; font-size: .8em; color: #fff; white-space: nowrap;
+  background: rgba(30,30,40,.75); border-radius: 99px; padding: .15em .55em;
+}
+.c-strip {
+  flex: none; font-size: .78em; font-style: italic; text-align: center; padding: .15em 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.65), transparent);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.c-meta { flex: none; font-size: .9em; text-align: center; opacity: .85; }
+.c-foot { margin-top: auto; flex: none; display: flex; justify-content: space-between; align-items: center; font-size: .78em; font-weight: 700; opacity: .85; }
+.stars { color: #a77800; letter-spacing: .05em; }
+.card.mini .big-only { display: none; }
+
+.shine {
+  position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(115deg, transparent 25%, rgba(255,255,255,.6) 45%, rgba(255,236,170,.4) 52%, transparent 68%);
+  background-size: 300% 300%; background-position: var(--mx, 100%) var(--my, 100%);
+  mix-blend-mode: soft-light; opacity: calc(.3 + var(--r, 1) * .1);
+  transition: background-position .7s ease;
+}
+/* mini shine: static, no blend mode (text flicker) */
+.card.mini .shine { mix-blend-mode: normal; opacity: calc(.14 + var(--r, 1) * .04); transition: none; }
+.card.mini { transition: none; }
+
+/* big card */
+.card.big { position: relative; font-size: 21.25px; width: 100%; height: 100%; cursor: pointer; box-shadow: 0 1em 3em rgba(0,0,0,.6); }
+.card.big .shine { transition: none; opacity: calc(.45 + var(--r, 1) * .1); }
+.card.big .card-in { gap: .3em; }
+.card.big .c-head { min-height: 1.6em; }
+.card.big .c-gen { font-size: .46em; }
+.card.big .c-name { font-size: 1.02em; display: block; white-space: nowrap; text-overflow: ellipsis; }
+.card.big .c-type { font-size: .72em; }
+.card.big .c-art { flex: none; height: 8.6em; }
+.card.big .c-art .initials { font-size: 3em; }
+.c-art img { object-position: center 30%; }
+.card.big .c-ribbon { font-size: .5em; }
+.card.big .c-strip { font-size: .52em; }
+.c-moves { flex: 1 1 auto; min-height: 0; overflow: hidden; font-size: .56em; display: flex; flex-direction: column; gap: .35em; }
+.move { flex: none; display: flex; gap: .55em; align-items: center; padding-bottom: .35em; border-bottom: 1px solid rgba(0,0,0,.14); }
+.move:last-child { border-bottom: 0; padding-bottom: 0; }
+.m-ico { flex: none; width: 1.8em; height: 1.8em; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.75); font-size: .95em; }
+.m-txt { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.move b { font-size: 1.05em; margin-right: .35em; }
+.c-stats { flex: none; display: flex; justify-content: space-around; font-size: .5em; }
+.c-stats small { opacity: .7; text-transform: uppercase; letter-spacing: .06em; font-size: .8em; margin-right: .35em; }
+.c-stats b { font-size: 1.15em; }
+.c-flavor {
+  flex: none; font-size: .5em; font-style: italic; padding: .4em .7em; border-radius: .4em;
+  border: 1px solid rgba(0,0,0,.22); background: rgba(255,255,255,.45);
+}
+.c-flavor span { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; }
+.card.big .c-foot { font-size: .48em; }
+.rel {
+  background: none; border: 0; padding: 0; font: inherit; font-weight: 700; color: inherit; cursor: pointer;
+  text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--t2) 70%, transparent);
+  text-decoration-thickness: 2px; text-underline-offset: 2px;
+}
+.rel:hover { color: color-mix(in srgb, var(--t2) 80%, #000); }
+
+/* ---------- Rarity ---------- */
+/* one border per tier: sand, silver, gold, purple, rainbow, black-gold */
+@property --ang { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@keyframes spin { to { --ang: 360deg; } }
+/* Common */
+.card.t0 { background: #cdbda4; --frame: #a8967c; }
+.card.t0 .shine { display: none; }
+/* Uncommon */
+.card.t1 { background: linear-gradient(135deg, #fdfdff, #d9dee6 30%, #9aa3b2 70%, #e6e9ef); --frame: #9aa3b2; }
+/* Rare: the default .card gold */
+/* Epic */
+.card.t3 { background: linear-gradient(135deg, #f1e4ff, #b48cff 30%, #6f3fd6 70%, #c9a8ff); --frame: #7b4fe0; }
+/* Legendary: tint behind the photo, never over it */
+.card.t4 { background: conic-gradient(from var(--ang), #ffe27a, #ff9bd2, #9fd8ff, #a8ffc0, #ffe27a); --frame: #e0b43a; }
+.card.t4 .card-in {
+  background:
+    linear-gradient(115deg, rgba(255,120,120,.16), rgba(255,217,61,.16) 25%, rgba(107,255,149,.16) 50%, rgba(107,213,255,.16) 75%, rgba(197,107,255,.16)),
+    linear-gradient(165deg, color-mix(in srgb, var(--t1) 38%, #fffaf0), color-mix(in srgb, var(--t2) 30%, #fffaf0));
+}
+.card.t4 .c-art { background: var(--stars), radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--t1) 65%, #fff) 0, var(--t2) 45%, #140e30 100%); }
+/* Origin */
+.card.t5 {
+  background: conic-gradient(from var(--ang), #151026, #2b2046 18%, #ffd24d 25%, #2b2046 32%, #151026 50%, #2b2046 68%, #ffd24d 75%, #2b2046 82%, #151026);
+  --frame: #ffd24d; padding: .85em;
+  box-shadow: inset 0 0 0 .16em #ffd24d, 0 0 1.4em rgba(255,210,90,.5), 0 .6em 1.6em rgba(0,0,0,.45);
+}
+.card.big.t5 { padding: .55em; }
+.card.t5 .card-in { background: linear-gradient(165deg, #fff8df, #f2dc9c); }
+.card.t5 .c-art { background: var(--stars), radial-gradient(circle at 50% 40%, color-mix(in srgb, #ffd24d 55%, #fff) 0, var(--t2) 50%, #140e30 100%); }
+.card.mini.t5:hover { box-shadow: inset 0 0 0 .16em #ffd24d, 0 0 0 .25em rgba(255,203,61,.9), 0 0 1.8em rgba(255,210,90,.6), 0 1em 2.2em rgba(0,0,0,.55); }
+/* foil spin: big card only (text flicker on minis) */
+.card.big.t4, .card.big.t5 { animation: spin 6s linear infinite; }
+/* memorial ring: inset, tier border stays */
+.card.memorial .card-in { box-shadow: inset 0 0 0 .14em #9aa3b2, inset 0 0 0 .24em rgba(255,255,255,.7); }
+
+/* ---------- Card back ---------- */
+.card.back .card-in {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,.35) 0 .15em, transparent .2em) 0 0 / 1em 1em,
+    linear-gradient(165deg, color-mix(in srgb, var(--t1) 30%, #fffaf0), color-mix(in srgb, var(--t2) 22%, #fffaf0));
+}
+.b-head { flex: none; display: flex; align-items: center; gap: .5em; padding-bottom: .3em; border-bottom: 2px solid var(--frame); }
+.b-head .c-type { font-size: .72em; }
+.b-head b { display: block; font-size: .78em; letter-spacing: .04em; text-transform: uppercase; }
+.b-head small { display: block; font-size: .56em; opacity: .75; }
+.b-body { flex: 1; min-height: 0; overflow: auto; font-size: .54em; padding-right: .3em; }
+.rec { display: grid; grid-template-columns: 7.2em 1fr; gap: .55em .8em; margin: .4em 0 0; }
+.rec dt { font-weight: 800; opacity: .6; text-transform: uppercase; font-size: .78em; letter-spacing: .05em; padding-top: .2em; }
+.rec dd { margin: 0; overflow-wrap: anywhere; }
+.rec dd.notes { white-space: pre-wrap; }
+.rec .former { opacity: .65; font-style: italic; }
+.b-hint { flex: none; text-align: center; font-size: .44em; opacity: .6; }
+
+/* ---------- Modal ---------- */
+.modal { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; }
+.backdrop { position: absolute; inset: 0; background: rgba(5,8,16,.8); backdrop-filter: blur(6px); }
+.stage { position: relative; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.scaler { animation: deal .35s ease; }
+@keyframes deal { from { opacity: 0; transform: translateY(24px) scale(.96); } }
+.zoomer { width: 340px; height: 476px; transform-origin: 0 0; perspective: 1400px; }
+.flipper { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .6s cubic-bezier(.2,.7,.2,1); }
+.flipper.tilting { transition: transform .08s linear; }
+.face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: translateZ(1px); }
+.face.back { transform: rotateY(180deg) translateZ(1px); }
+/* hidden side never takes clicks */
+.flipper:not(.flipped) .face.back, .flipper.flipped .face.front { pointer-events: none; }
+.modal-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.nav {
+  position: fixed; top: 50%; transform: translateY(-50%); z-index: 1; width: 48px; height: 48px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.08); cursor: pointer;
+  display: grid; place-items: center; padding: 0;
+}
+@media (hover: hover) { .nav:hover { background: rgba(255,255,255,.18); } }
+.nav:active { background: rgba(255,255,255,.18); }
+.nav.prev { left: 16px; } .nav.next { right: 16px; }
+@media (max-width: 640px) {
+  .nav { top: auto; bottom: 16px; transform: none; }
+  #search { width: 140px; }
+}
+
+/* ---------- Drop zone and toast ---------- */
+.drop {
+  position: fixed; inset: 12px; z-index: 30; border: 3px dashed var(--accent); border-radius: 20px;
+  display: grid; place-items: center; font-size: 22px; font-weight: 700; background: rgba(14,19,34,.85); pointer-events: none;
+}
+.toast {
+  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 40; max-width: calc(100% - 32px);
+  background: #2a1d1d; border: 1px solid #ff8a80; color: #ffd7d2; padding: 10px 16px; border-radius: 10px;
+}
+.toast.info { background: #16261d; border-color: #7fd69a; color: #d6f5df; }
+</style>
+</head>
+<body class="home">
+
+<!-- Logo symbol -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="kd-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff4bd"/><stop offset=".45" stop-color="#ffcb3d"/><stop offset="1" stop-color="#e08a1e"/></linearGradient>
+    <linearGradient id="kd-violet" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c3a8ff"/><stop offset="1" stop-color="#6a4bd8"/></linearGradient>
+    <symbol id="kd-logo" viewBox="0 0 48 48">
+      <rect x="6" y="11" width="22" height="30" rx="4" fill="url(#kd-violet)" transform="rotate(-14 17 26)"/>
+      <g transform="rotate(9 30 22)">
+        <rect x="19" y="7" width="22" height="30" rx="4" fill="url(#kd-gold)"/>
+        <rect x="22" y="10" width="16" height="24" rx="2.5" fill="none" stroke="#1b1606" stroke-opacity=".35" stroke-width="1.2"/>
+        <path d="M30 15l5.5 7-5.5 7-5.5-7z" fill="#1b1606"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- Header -->
+<header class="bar">
+  <div class="brand"><a class="home-link" id="homeLink" href="" title="Back to the home page"><svg class="logo" viewBox="0 0 48 48" aria-hidden="true"><use href="#kd-logo"/></svg><span class="wordmark">Kin<span>Dex</span></span></a><span class="file" id="fileName"></span></div>
+  <div class="tools" id="tools" hidden>
+    <div class="seg" id="viewSeg"><button data-view="tree" class="on">Tree</button><button data-view="deck">Collection</button></div>
+    <input id="search" list="names" placeholder="Find a person…" autocomplete="off" aria-label="Find a person">
+    <datalist id="names"></datalist>
+    <div class="seg" id="zoomSeg">
+      <button id="zoomOut" title="Zoom out" aria-label="Zoom out">−</button>
+      <button id="zoomFit" title="Fit to screen">Fit</button>
+      <button id="zoomIn" title="Zoom in" aria-label="Zoom in">+</button>
+    </div>
+    <button class="btn small" id="folderBtn2" title="Open a family folder (.ged file + photos)">📁 Folder</button>
+    <button class="btn small" id="openBtn2" title="Open a .ged file (you can select photos with it)">📄 File</button>
+    <button class="btn small" id="reloadBtn" title="Re-read the folder to pick up new photos or a new export" hidden>↻ Reload</button>
+    <button class="btn small primary dl" id="packBtn" title="Save this tree and its photos as one file you can send to family. Made on your device, never uploaded."><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Download to share</button>
+  </div>
+</header>
+
+<main>
+  <section id="viewport" class="viewport" hidden><div id="world" class="world"></div></section>
+  <section id="deck" class="deck" hidden></section>
+  <!-- Welcome -->
+  <section id="welcome" class="welcome">
+    <div class="welcome-in">
+      <div class="intro">
+        <div>
+          <div class="logo-big"><svg class="logo" viewBox="0 0 48 48" aria-hidden="true"><use href="#kd-logo"/></svg><span class="wordmark">Kin<span>Dex</span></span></div>
+          <p class="meaning"><span class="eq">Kin + Index</span>a card index of your <b>kin</b>, the people in your family.</p>
+          <h1>Your Family as Collectible Cards</h1>
+          <p class="why">Made to get young ones curious about their roots, so every ancestor becomes a card worth collecting.</p>
+          <div class="actions">
+            <button class="btn primary" id="folderBtn"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4.6l2 2.2h8.4A1.5 1.5 0 0 1 21 8.7v9.8a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5z" fill="currentColor"/></svg>Open family folder</button>
+            <button class="btn" id="openBtn">📄 Open a .ged file</button>
+            <button class="btn sample" id="sampleBtn">▶ Try a sample family</button>
+          </div>
+        </div>
+        <div class="hero-wrap"><div class="hero" id="hero"></div></div>
+      </div>
+
+      <section class="how">
+        <div class="privacy">
+          <p>🔒 Everything runs in this browser. Your files are never uploaded anywhere.</p>
+          <p class="sub">If your browser asks to let this site <b>view files</b>, that only lets this page read them on your device.</p>
+        </div>
+        <h2>How it works</h2>
+        <ol class="steps">
+          <li class="step">
+            <span class="num">1</span>
+            <h3>Export</h3>
+            <p>Save your tree as a <b>.ged</b> file from any genealogy app.</p>
+            <p class="note">Everything on a card comes from this file. KinDex shows it as cards; it never adds or changes anything about your family.</p>
+          </li>
+          <li class="step">
+            <span class="num">2</span>
+            <h3>Add photos</h3>
+            <p>Make one folder with your .ged file and a <b>photos</b> folder. Name each photo after the person:</p>
+            <pre class="folder-hint">Hartwell Family/
+├── <i>hartwell-family.ged</i>
+└── photos/
+    ├── <i>Arthur Hartwell.jpg</i>
+    ├── <i>Thomas Hartwell.png</i>
+    └── <i>Daniel Kim.jpg</i></pre>
+            <p class="note">Capitals and spaces don't matter. Two people with the same name? Add the birth year: <code>Maya Hartwell 1983.jpg</code></p>
+          </li>
+          <li class="step">
+            <span class="num">3</span>
+            <h3>Open</h3>
+            <p>Click <b>Open family folder</b>, or drag the folder onto this page.</p>
+            <p class="note">No photos? Click <b>Open a .ged file</b> and pick just the .ged file. Cards without a photo show initials.</p>
+          </li>
+          <li class="step">
+            <span class="num">4</span>
+            <h3>Share</h3>
+            <p>Click <b>Download to share</b> to save one file with every card and photo.</p>
+            <p class="note">Send it to relatives. They just open it, no setup needed.</p>
+          </li>
+        </ol>
+      </section>
+
+      <footer class="site-foot">
+        <span>KinDex v1.0</span>
+        <button type="button" data-legal="privacyDlg">Privacy</button>
+        <button type="button" data-legal="termsDlg">Terms</button>
+        <a href="https://github.com/shadabdsw/KinDex" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg></a>
+      </footer>
+    </div>
+  </section>
+</main>
+
+<input type="file" id="fileInput" accept=".ged,.gedcom,image/*" multiple hidden>
+<input type="file" id="folderInput" webkitdirectory multiple hidden>
+<div id="drop" class="drop" hidden>Drop a .ged file, photos, or your family folder</div>
+<div id="toast" class="toast" hidden></div>
+
+<!-- Privacy and terms -->
+<dialog id="privacyDlg" class="legal"><div class="legal-in">
+  <h2>Privacy</h2>
+  <ul>
+    <li><b>Nothing is uploaded.</b> Your GEDCOM file and photos are read by your browser, on your device. They are never sent to us or anyone else.</li>
+    <li><b>Nothing is kept.</b> No accounts, cookies, analytics or tracking. Closing the tab clears your tree.</li>
+    <li><b>Downloads stay local.</b> “Download to share” and “Save image” create the file on your device and save it straight to your Downloads folder.</li>
+    <li><b>Standard hosting logs.</b> Like any website, the hosting provider may keep basic server logs (such as IP address and time of visit) to deliver this page.</li>
+  </ul>
+  <form method="dialog"><button class="btn small">Close</button></form>
+</div>
+</dialog>
+
+<dialog id="termsDlg" class="legal"><div class="legal-in">
+  <h2>Terms</h2>
+  <ul>
+    <li><b>Free to use.</b> KinDex is provided “as is”, without any warranty.</li>
+    <li><b>Cards show what your file says.</b> Names, dates, places, relationships, notes and photos all come from the GEDCOM file and photos you open. KinDex doesn’t add, change or check any family details. The rarity, type and card number are just for fun, worked out from the tree itself.</li>
+    <li><b>We don’t store or share your information.</b> KinDex never collects, keeps or passes on your family details or photos. They stay on your device.</li>
+    <li><b>Independent project.</b> KinDex is not affiliated with any other company, product or website of the same or a similar name.</li>
+    <li><b>The sample family is fictional.</b> Its names, life details and portraits were made up for this demo. Any resemblance to real people, living or dead, is purely coincidental.</li>
+    <li><b>Share downloads with care.</b> A downloaded family tree contains everyone’s names, dates, notes and photos. Please send it only to people you trust.</li>
+  </ul>
+  <form method="dialog"><button class="btn small">Close</button></form>
+</div>
+</dialog>
+
+<!-- Card modal -->
+<div id="modal" class="modal" hidden>
+  <div class="backdrop" data-close></div>
+  <button class="nav prev" id="prevCard" aria-label="Previous card"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  <div class="stage">
+    <div class="scaler" id="scaler">
+      <div class="zoomer" id="zoomer">
+        <div class="flipper" id="flipper">
+          <div class="face front" id="faceFront"></div>
+          <div class="face back" id="faceBack"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn small" id="flipBtn">↻ Flip</button>
+      <button class="btn small" id="locateBtn">⌖ Show in tree</button>
+      <button class="btn small" id="saveImgBtn" title="Save the side you are looking at as a JPG image">⬇ Save image</button>
+      <button class="btn small" data-close>✕ Close</button>
+    </div>
+  </div>
+  <button class="nav next" id="nextCard" aria-label="Next card"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+</div>
+
+<!-- Core: parsing, model, layout; no DOM, Node-testable -->
+<script id="core">
+'use strict';
+
+// ---------- Sample family ----------
+// fictional; 6 generations so every tier shows up
+const SAMPLE_GED = `0 HEAD
+1 SOUR Family Echo
+1 FILE Hartwell Family
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+1 CHAR UTF-8
+0 @I1@ INDI
+1 NAME Arthur /Hartwell/
+1 SEX M
+1 BIRT
+2 DATE 14 FEB 1928
+2 PLAC Leeds, England
+1 DEAT
+2 DATE 3 NOV 2004
+2 PLAC Leeds, England
+1 OCCU Carpenter
+1 NOTE Bio notes: Built the family home on Elm Street with his own hands.
+2 CONT Kept a workshop full of half-finished toys for the grandchildren.
+1 FAMS @F1@
+1 FAMC @F7@
+0 @I2@ INDI
+1 NAME Eleanor /Price/
+1 SEX F
+1 BIRT
+2 DATE 9 JUN 1931
+2 PLAC York, England
+1 DEAT
+2 DATE 22 JAN 2019
+2 PLAC Leeds, England
+1 OCCU Schoolteacher
+1 NOTE Bio notes: Taught primary school for 38 years and never forgot a pupil's name.
+2 CONT Her Sunday roast brought the whole family to one table.
+1 FAMS @F1@
+0 @I3@ INDI
+1 NAME Thomas /Hartwell/
+1 SEX M
+1 BIRT
+2 DATE 4 MAR 1954
+2 PLAC Leeds, England
+1 OCCU Civil engineer
+1 FAMS @F2@
+1 FAMC @F1@
+0 @I4@ INDI
+1 NAME Linda /Moreno/
+1 SEX F
+1 BIRT
+2 DATE 18 SEP 1956
+2 PLAC Seville, Spain
+1 OCCU Nurse
+1 NOTE Bio notes: Moved from Seville to Leeds in 1977 to train as a nurse.
+2 CONT Still makes paella for every family birthday.
+1 FAMS @F2@
+0 @I5@ INDI
+1 NAME Margaret /Hartwell/
+2 NICK Peggy
+1 SEX F
+1 BIRT
+2 DATE 27 NOV 1957
+2 PLAC Leeds, England
+1 OCCU Librarian
+1 NOTE Bio notes: Runs the village book club and the family group chat.
+2 CONT Keeper of every old photo album.
+1 FAMS @F3@
+1 FAMC @F1@
+0 @I6@ INDI
+1 NAME Samuel /Okafor/
+1 SEX M
+1 BIRT
+2 DATE 2 APR 1955
+2 PLAC Lagos, Nigeria
+1 DEAT
+2 DATE 15 AUG 2018
+2 PLAC Manchester, England
+1 OCCU Pharmacist
+1 FAMS @F3@
+0 @I7@ INDI
+1 NAME Robert /Hartwell/
+1 SEX M
+1 BIRT
+2 DATE 30 AUG 1961
+2 PLAC Leeds, England
+1 DEAT
+2 DATE 1999
+1 OCCU Musician
+1 NOTE Bio notes: Played bass in a touring band and taught every nephew their first chord.
+2 CONT Gone too soon, never forgotten.
+1 FAMC @F1@
+0 @I8@ INDI
+1 NAME Maya /Hartwell/
+1 SEX F
+1 BIRT
+2 DATE 21 JAN 1983
+2 PLAC Leeds, England
+1 OCCU Software developer
+1 NOTE Bio notes: Started the family tree project that became this deck.
+2 CONT Loves mountain hikes and terrible puns.
+1 FAMS @F4@
+1 FAMC @F2@
+0 @I9@ INDI
+1 NAME Daniel /Kim/
+1 SEX M
+1 BIRT
+2 DATE 11 OCT 1981
+2 PLAC Busan, South Korea
+1 OCCU Architect
+1 FAMS @F4@
+0 @I10@ INDI
+1 NAME Lucas /Hartwell/
+1 SEX M
+1 FAMC @F2@
+0 @I11@ INDI
+1 NAME Chidi /Okafor/
+1 SEX M
+1 BIRT
+2 DATE 7 JUL 1985
+2 PLAC Manchester, England
+1 OCCU Doctor
+1 NOTE Bio notes: The first doctor in the family, just like his father hoped.
+2 CONT Plays the drums on weekends, much to the neighbours' dismay.
+1 FAMS @F5@
+1 FAMC @F3@
+0 @I12@ INDI
+1 NAME Hannah /Berg/
+1 SEX F
+1 BIRT
+2 DATE 3 DEC 1987
+2 PLAC Bergen, Norway
+1 FAMS @F5@
+0 @I13@ INDI
+1 NAME Ada /Okafor/
+1 SEX F
+1 BIRT
+2 DATE 19 MAY 1990
+2 PLAC Manchester, England
+1 OCCU Painter
+1 FAMC @F3@
+0 @I14@ INDI
+1 NAME Leo /Kim/
+1 SEX M
+1 BIRT
+2 DATE 2 AUG 2012
+2 PLAC Toronto, Canada
+1 NOTE Bio notes: Knows the name of every dinosaur, and will tell you all of them.
+1 FAMC @F4@
+0 @I15@ INDI
+1 NAME Sophie /Kim/
+1 SEX F
+1 BIRT
+2 DATE 25 MAR 2015
+2 PLAC Toronto, Canada
+1 FAMC @F4@
+0 @I16@ INDI
+1 NAME Zara /Okafor/
+1 SEX F
+1 BIRT
+2 DATE 14 SEP 2019
+2 PLAC Manchester, England
+1 FAMC @F5@
+0 @I17@ INDI
+1 NAME George /Hartwell/
+1 SEX M
+1 BIRT
+2 DATE 3 MAR 1871
+2 PLAC Leeds, England
+1 DEAT
+2 DATE 1940
+2 PLAC Leeds, England
+1 OCCU Stonemason
+1 NOTE Bio notes: Cut and laid stone for chapels and bridges across Yorkshire.
+2 CONT His mason's mark is still on the old bridge by the mill.
+1 FAMS @F6@
+0 @I18@ INDI
+1 NAME Mary Ann /Fletcher/
+1 SEX F
+1 BIRT
+2 DATE 1874
+2 PLAC Wakefield, England
+1 DEAT
+2 DATE 12 OCT 1951
+2 PLAC Leeds, England
+1 FAMS @F6@
+0 @I19@ INDI
+1 NAME Walter /Hartwell/
+1 SEX M
+1 BIRT
+2 DATE 19 JUN 1899
+2 PLAC Leeds, England
+1 DEAT
+2 DATE 1962
+2 PLAC Leeds, England
+1 OCCU Joiner
+1 FAMS @F7@
+1 FAMC @F6@
+0 @I20@ INDI
+1 NAME Edith /Clarke/
+1 SEX F
+1 BIRT
+2 DATE 2 FEB 1902
+2 PLAC Harrogate, England
+1 DEAT
+2 DATE 1987
+2 PLAC Leeds, England
+1 OCCU Shopkeeper
+1 NOTE Bio notes: Ran the family corner shop and knew every customer's order by heart.
+2 CONT Gave Arthur his first set of tools on his tenth birthday.
+1 FAMS @F7@
+0 @F1@ FAM
+1 HUSB @I1@
+1 WIFE @I2@
+1 MARR
+2 DATE 12 JUL 1952
+2 PLAC Leeds, England
+1 CHIL @I3@
+1 CHIL @I5@
+1 CHIL @I7@
+0 @F2@ FAM
+1 HUSB @I3@
+1 WIFE @I4@
+1 MARR
+2 DATE 6 MAY 1980
+1 CHIL @I8@
+1 CHIL @I10@
+0 @F3@ FAM
+1 HUSB @I6@
+1 WIFE @I5@
+1 MARR
+2 DATE 1983
+1 CHIL @I11@
+1 CHIL @I13@
+0 @F4@ FAM
+1 HUSB @I9@
+1 WIFE @I8@
+1 MARR
+2 DATE 18 JUN 2010
+1 CHIL @I14@
+1 CHIL @I15@
+0 @F5@ FAM
+1 HUSB @I11@
+1 WIFE @I12@
+1 MARR
+2 DATE 2016
+1 CHIL @I16@
+0 @F6@ FAM
+1 HUSB @I17@
+1 WIFE @I18@
+1 MARR
+2 DATE 1896
+2 PLAC Leeds, England
+1 CHIL @I19@
+0 @F7@ FAM
+1 HUSB @I19@
+1 WIFE @I20@
+1 MARR
+2 DATE 1925
+2 PLAC Leeds, England
+1 CHIL @I1@
+0 TRLR`;
+
+// sample portraits: inline SVG, returned like folder photos
+function samplePhotos() {
+  const HAIR = {
+    receding: { front: 'M55,74 Q52,56 58,48 L61,62 Q60,70 58,76 Z M105,74 Q108,56 102,48 L99,62 Q100,70 102,76 Z' },
+    short: { front: 'M56,62 Q54,34 80,34 Q106,34 104,62 Q101,47 92,45 Q80,49 70,45 Q60,47 56,62 Z' },
+    side: { front: 'M56,64 Q54,34 80,33 Q106,34 104,64 Q102,48 96,46 Q84,40 64,49 Q58,51 56,64 Z' },
+    bun: { back: 'M71,32 a9,9 0 1 1 18,0 a9,9 0 1 1 -18,0 Z', front: 'M56,66 Q54,36 80,35 Q106,36 104,66 Q101,48 80,45 Q59,48 56,66 Z' },
+    long: {
+      back: 'M52,60 Q46,104 38,120 L122,120 Q114,104 108,60 Q108,30 80,30 Q52,30 52,60 Z',
+      front: 'M55,72 Q50,34 80,34 Q110,34 105,72 Q102,52 88,50 Q78,58 64,54 Q58,58 55,72 Z',
+    },
+    wavy: {
+      back: 'M52,62 Q44,82 50,98 Q44,108 50,118 L110,118 Q116,108 110,98 Q116,82 108,62 Q108,30 80,30 Q52,30 52,62 Z',
+      front: 'M55,70 Q50,34 80,34 Q110,34 105,70 Q100,50 84,48 Q70,52 60,50 Q56,58 55,70 Z',
+    },
+    bob: {
+      back: 'M54,74 Q48,34 80,32 Q112,34 106,74 Q106,84 98,84 L62,84 Q54,84 54,74 Z',
+      front: 'M56,64 Q54,36 80,36 Q106,36 104,64 Q100,50 92,47 Q82,52 72,46 Q60,50 56,64 Z',
+    },
+    curly: { front: 'M56,62 Q50,50 56,42 Q56,32 66,32 Q72,24 82,28 Q92,24 98,32 Q108,34 106,44 Q110,52 104,62 Q102,48 92,46 Q80,50 68,46 Q58,48 56,62 Z' },
+    puffs: {
+      back: 'M44,40 a12,12 0 1 1 24,0 a12,12 0 1 1 -24,0 Z M92,40 a12,12 0 1 1 24,0 a12,12 0 1 1 -24,0 Z',
+      front: 'M56,62 Q54,36 80,36 Q106,36 104,62 Q100,48 80,46 Q60,48 56,62 Z',
+    },
+    messy: { front: 'M56,62 L52,46 L60,46 L58,36 L68,40 L72,30 L80,38 L88,29 L92,39 L102,35 L100,46 L108,48 L104,62 Q100,46 80,45 Q60,46 56,62 Z' },
+  };
+  const draw = o => {
+    const h = HAIR[o.hair], skin = o.skin, shade = o.shade;
+    const hair = d => `<path d="${d}" fill="${o.hairColor}" stroke="${o.hairLine}" stroke-width="1" stroke-linejoin="round"/>`;
+    const eye = x => `<ellipse cx="${x}" cy="66" rx="3.4" ry="4" fill="${o.iris}"/><circle cx="${x}" cy="66.6" r="1.8" fill="#1d1a2a"/>` +
+      `<circle cx="${x + 1.1}" cy="64.8" r="1.1" fill="#fff"/>`;
+    const brows = `<path d="M63,58 Q69,55 74,58 M86,58 Q91,55 97,58" fill="none" stroke="${o.brow || o.hairLine}" stroke-width="1.6" stroke-linecap="round"/>`;
+    const glasses = `<g fill="none" stroke="${o.glasses}" stroke-width="1.5"><circle cx="69" cy="66" r="7"/><circle cx="91" cy="66" r="7"/><path d="M76,66 Q80,63 84,66 M62,65 L57,63 M98,65 L103,63"/></g>`;
+    const lines = `<path d="M62,74 Q64,78 67,79 M98,74 Q96,78 93,79" fill="none" stroke="${shade}" stroke-width="1.2" stroke-linecap="round"/>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="480" height="360" viewBox="0 0 160 120">` +
+      `<defs><radialGradient id="b" cx=".5" cy=".38" r=".75"><stop offset="0" stop-color="${o.bg[0]}"/><stop offset="1" stop-color="${o.bg[1]}"/></radialGradient></defs>` +
+      `<rect width="160" height="120" fill="url(#b)"/>` +
+      (h.back ? hair(h.back) : '') +
+      `<path d="M22,120 C26,100 48,94 66,92 L94,92 C112,94 134,100 138,120 Z" fill="${o.outfit}"/>` +
+      `<path d="${o.collarPath || 'M66,92 L80,104 L94,92 L98,95 L80,110 L62,95 Z'}" fill="${o.collar}"/>` +
+      `<rect x="72" y="82" width="16" height="13" fill="${shade}"/>` +
+      `<ellipse cx="57" cy="67" rx="4" ry="6" fill="${skin}"/><ellipse cx="103" cy="67" rx="4" ry="6" fill="${skin}"/>` +
+      `<ellipse cx="80" cy="64" rx="23" ry="25" fill="${skin}"/>` +
+      (o.earrings ? `<circle cx="56" cy="75" r="1.8" fill="${o.earrings}"/><circle cx="104" cy="75" r="1.8" fill="${o.earrings}"/>` : '') +
+      (o.blush ? '<ellipse cx="65" cy="75" rx="4.5" ry="2.5" fill="#ff9eb0" opacity=".45"/><ellipse cx="95" cy="75" rx="4.5" ry="2.5" fill="#ff9eb0" opacity=".45"/>' : '') +
+      (o.elder ? lines : '') + eye(69) + eye(91) + brows +
+      `<path d="M76,74 Q80,76 84,74" fill="none" stroke="${shade}" stroke-width="1.2" stroke-linecap="round"/>` +
+      (o.moustache ? `<path d="M70,80 Q75,76 80,78 Q85,76 90,80 Q85,82 80,80 Q75,82 70,80 Z" fill="${o.moustache}"/>` : '') +
+      `<path d="M74,81 Q80,86 86,81" fill="none" stroke="${o.lips || '#8a3f30'}" stroke-width="1.6" stroke-linecap="round"/>` +
+      hair(h.front) + (o.glasses ? glasses : '') + '</svg>';
+  };
+  const LIGHT = { skin: '#ffdcbf', shade: '#ecbc98' }, WARM = { skin: '#f3cfa8', shade: '#dfb088' };
+  const OLIVE = { skin: '#e6b88e', shade: '#cf9c70' }, BROWN = { skin: '#a8714a', shade: '#8a5836', lips: '#5a2618' };
+  const GREY = { hairColor: '#dcdce3', hairLine: '#a6a6b2' };
+  const people = {
+    'Arthur Hartwell': { ...LIGHT, ...GREY, hair: 'receding', iris: '#4f7fb8', elder: true, moustache: '#e4e4ea', brow: '#b9b9c4',
+      outfit: '#7a5a3a', collar: '#e9dfc9', bg: ['#f5e6c8', '#b98a4a'] },
+    'Eleanor Price': { ...LIGHT, ...GREY, hair: 'bun', iris: '#6a8f5a', elder: true, glasses: '#8a6a3a', earrings: '#e8d27a', brow: '#b9b9c4',
+      outfit: '#5a6fa8', collar: '#f2efe6', collarPath: 'M64,92 Q80,104 96,92 L96,96 Q80,108 64,96 Z', bg: ['#e6ecff', '#6b7fc0'] },
+    'Thomas Hartwell': { ...LIGHT, hair: 'side', hairColor: '#8c8c94', hairLine: '#66666f', iris: '#4f7fb8', glasses: '#2b2b33',
+      outfit: '#3d5a7a', collar: '#f4f4f4', bg: ['#d6e6f5', '#4a6f96'] },
+    'Linda Moreno': { ...OLIVE, hair: 'wavy', hairColor: '#3b2418', hairLine: '#24150d', iris: '#5a3a22', earrings: '#e8c25a', blush: true,
+      outfit: '#c23b4a', collar: '#8f1f2e', collarPath: 'M64,92 Q80,104 96,92 L96,96 Q80,108 64,96 Z', bg: ['#ffe0c8', '#d0603a'] },
+    'Margaret Hartwell': { ...LIGHT, hair: 'bob', hairColor: '#b8b0a6', hairLine: '#8a8278', iris: '#4f7fb8', glasses: '#a0402a', elder: true,
+      outfit: '#4f8a6a', collar: '#e9f2ea', bg: ['#e2f2e6', '#4f8a6a'] },
+    'Maya Hartwell': { ...WARM, hair: 'long', hairColor: '#6b4428', hairLine: '#4a2c18', iris: '#5a3a22', blush: true,
+      outfit: '#2f6f8f', collar: '#f2c94c', collarPath: 'M64,92 Q80,104 96,92 L96,96 Q80,108 64,96 Z', bg: ['#d8f0f5', '#2f7f9f'] },
+    'Daniel Kim': { ...WARM, hair: 'short', hairColor: '#1f1a1a', hairLine: '#0e0b0b', iris: '#3a2a1e',
+      outfit: '#2b2b33', collar: '#d9d9e0', bg: ['#e6e6ef', '#5a5a74'] },
+    'Chidi Okafor': { ...BROWN, hair: 'curly', hairColor: '#1a1414', hairLine: '#0a0707', iris: '#2a1a12',
+      outfit: '#e9f0f7', collar: '#5a8fd0', bg: ['#d8ecff', '#3a6fb0'] },
+    'Leo Kim': { ...WARM, hair: 'messy', hairColor: '#2a1f1a', hairLine: '#16100c', iris: '#3a2a1e', blush: true,
+      outfit: '#3fa35a', collar: '#f2d64b', bg: ['#e4f7d8', '#4f9f4a'] },
+    'Zara Okafor': { ...BROWN, skin: '#b9825a', shade: '#9a6842', hair: 'puffs', hairColor: '#2a1c14', hairLine: '#140c08', iris: '#2a1a12', blush: true,
+      outfit: '#f2a03a', collar: '#c25a8a', collarPath: 'M64,92 Q80,104 96,92 L96,96 Q80,108 64,96 Z', bg: ['#fff0d0', '#e08a3a'] },
+  };
+  return Object.entries(people).map(([name, o]) =>
+    ({ path: `${name}.svg`, url: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(draw(o)) }));
+}
+
+// ---------- Types and tiers ----------
+const TYPES = [
+  { name: 'Fire',      icon: '🔥', c1: '#ff8a50', c2: '#c2341b' },
+  { name: 'Water',     icon: '💧', c1: '#5bb8ff', c2: '#1d5fbf' },
+  { name: 'Grass',     icon: '🌿', c1: '#86d873', c2: '#2f8a3a' },
+  { name: 'Lightning', icon: '⚡', c1: '#ffd84a', c2: '#c98d00' },
+  { name: 'Psychic',   icon: '🔮', c1: '#d995ff', c2: '#7b3fc4' },
+  { name: 'Fighting',  icon: '👊', c1: '#e8a06a', c2: '#9c4a20' },
+  { name: 'Metal',     icon: '⚙️', c1: '#c3ccd6', c2: '#5f6b78' },
+  { name: 'Dragon',    icon: '🐉', c1: '#9aaaff', c2: '#4a3fb8' },
+  { name: 'Fairy',     icon: '✨', c1: '#ffa6d4', c2: '#c9468a' },
+  { name: 'Ice',       icon: '❄️', c1: '#a6f2f2', c2: '#2f9cb0' },
+];
+// Origin on top, then one tier per generation (deeper trees: spread over 5)
+const TIERS = [
+  { name: 'Common', sym: '●' },
+  { name: 'Uncommon', sym: '◆' },
+  { name: 'Rare', sym: '★' },
+  { name: 'Epic', sym: '★★' },
+  { name: 'Legendary', sym: '★★★' },
+  { name: 'Origin', sym: '♛' },
+];
+function tierFor(gen, maxGen) {
+  if (maxGen < 2) return 0;
+  if (gen === 1) return 5;
+  if (maxGen <= 6) return Math.max(0, 6 - gen);
+  return Math.round(4 * (maxGen - gen) / (maxGen - 2));
+}
+
+// ---------- Constants and helpers ----------
+const CW = 160, CH = 224, GAP_IN = 36, GAP_OUT = 64, ROW_H = CH + 140, MARGIN_X = 150, MARGIN_Y = 60;
+
+const IMAGE_RE = /\.(jpe?g|png|webp|gif|avif|bmp)$/i;
+
+const mean = a => a.reduce((s, v) => s + v, 0) / a.length;
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+const unique = a => [...new Set(a)];
+// ---------- Dates ----------
+// any calendar: year = first non-day number, other words = era label
+const DATE_WORDS = /^(abt|about|bef|aft|cal|est|int|bet|and|from|to|c\.?|circa|ca\.?|gregorian|julian)$/i;
+const MONTH_WORD = /^(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?$/i;
+// Hebrew and French Republican months
+const OTHER_MONTH = /^(tsh|csh|ksl|tvt|shv|adr|ads|nsn|iyr|svn|tmz|aav|ell|vend|brum|frim|nivo|pluv|vent|germ|flor|prai|mess|ther|fruc|comp)$/i;
+const isMonth = t => MONTH_WORD.test(t) || OTHER_MONTH.test(t);
+function parseDate(raw) {
+  const text = (raw || '').trim().replace(/^\((.*)\)$/, '$1').trim()
+    .replace(/^INT\s+(.*?)\s*\(.*\)$/i, '$1')
+    .replace(/@#D(GREGORIAN|JULIAN)@/gi, '')
+    .replace(/@#D([A-Z_ ]+)@/gi, (m, cal) => cal.replace(/_/g, ' '));
+  const tokens = text.split(/[\s,]+/).filter(Boolean);
+  let year = null, before = 0, after = 0;
+  const era = [], kept = [];
+  tokens.forEach((t, i) => {
+    if (/^\d+(\/\d+)?$/.test(t)) {
+      const isDay = t.length <= 2 && isMonth(tokens[i + 1] || '');
+      if (!isDay && year === null) { year = t.split('/')[0]; kept.push(t); }
+    } else if (!DATE_WORDS.test(t) && !isMonth(t)) {
+      if (year === null) before++; else after++;
+      era.push(t);
+      kept.push(t);
+    }
+  });
+  const label = era.join(' ');
+  const hasEra = !!year && !!label && !/^y$/i.test(label);
+  // BC-style eras count backwards
+  const backwards = hasEra && (/^before\b/i.test(label) || /^B[A-Za-z.]{0,4}$/.test(label.replace(/\s+/g, '')));
+  return {
+    text, year, backwards,
+    era: hasEra ? label : '',
+    side: !hasEra ? '' : before && after ? 'around' : before ? 'before' : 'after',
+    yearText: year && (hasEra ? kept.join(' ') : year),
+  };
+}
+const yearOf = date => parseDate(date).year;
+
+// sort key: year, month, day; BC before AD
+const MONTH_INDEX = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+function dateSortKey(date) {
+  const d = parseDate(date);
+  if (!d.year) return null;
+  const tokens = d.text.split(/[\s,]+/);
+  const at = tokens.findIndex(t => MONTH_WORD.test(t));
+  const month = at >= 0 ? MONTH_INDEX.indexOf(tokens[at].slice(0, 3).toLowerCase()) + 1 : 0;
+  const day = at > 0 && /^\d{1,2}$/.test(tokens[at - 1]) ? +tokens[at - 1] : 0;
+  return (d.backwards ? -d.year : +d.year) * 10000 + month * 100 + day;
+}
+// eldest first; undated keep file position
+function sortByBirth(ids, people) {
+  const key = id => dateSortKey(people.get(id).birth?.date);
+  const slots = ids.map((id, i) => key(id) === null ? null : i).filter(i => i !== null);
+  const dated = slots.map(i => ids[i]).sort((a, b) => key(a) - key(b));
+  const out = [...ids];
+  slots.forEach((slot, k) => { out[slot] = dated[k]; });
+  return out;
+}
+// name key: ignores case, spaces, punctuation, accents
+const nameKey = s => (s || '').normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+
+// ---------- GEDCOM ----------
+// lines -> nested records
+function parseGedcom(text) {
+  const root = { children: [] };
+  const stack = [root];
+  for (const raw of text.replace(/^﻿/, '').split(/\r\n|\r|\n/)) {
+    const m = raw.match(/^\s*(\d+)\s+(?:(@[^@\s]+@)\s+)?(\S+)(?: (.*))?$/);
+    if (!m) continue;
+    const level = +m[1], tag = m[3].toUpperCase(), value = m[4] ?? '';
+    const depth = Math.min(level, stack.length - 1);
+    const parent = stack[depth];
+    if (tag === 'CONC' || tag === 'CONT') {
+      parent.value = (parent.value || '') + (tag === 'CONT' ? '\n' : '') + value;
+      continue;
+    }
+    const node = { level, xref: m[2] || null, tag, value, children: [] };
+    stack.length = depth + 1;
+    parent.children.push(node);
+    stack.push(node);
+  }
+  return root.children;
+}
+
+const kid = (n, tag) => n ? n.children.find(c => c.tag === tag) : undefined;
+const kids = (n, tag) => n ? n.children.filter(c => c.tag === tag) : [];
+const ref = n => (n?.value || '').trim();
+
+function readEvent(rec, tag) {
+  const n = kid(rec, tag);
+  if (!n) return null;
+  return { date: kid(n, 'DATE')?.value.trim() || '', place: kid(n, 'PLAC')?.value.trim() || '' };
+}
+
+// records -> people and families, partners, parents, siblings
+function buildModel(records) {
+  const notes = new Map(), objes = new Map(), people = new Map(), families = new Map();
+  let title = '';
+  for (const r of records) {
+    if ((r.tag === 'NOTE' || r.tag === 'SNOTE') && r.xref) notes.set(r.xref, r.value);
+    if (r.tag === 'OBJE' && r.xref) objes.set(r.xref, r);
+  }
+  for (const r of records) {
+    if (r.tag === 'HEAD') title = kid(r, 'FILE')?.value.trim() || '';
+    if (r.tag === 'INDI' && r.xref) people.set(r.xref, readPerson(r, notes, objes));
+    if (r.tag === 'FAM' && r.xref) families.set(r.xref, readFamily(r));
+  }
+
+  // relationships: FAM records only
+  for (const p of people.values()) { p.parentFams = []; p.spouseFams = []; }
+  for (const f of families.values()) {
+    f.parents = [f.husb, f.wife].filter(id => id && people.has(id));
+    f.children = sortByBirth(unique(f.children.filter(id => people.has(id))), people);
+    f.parents.forEach(id => people.get(id).spouseFams.push(f));
+    f.children.forEach(id => people.get(id).parentFams.push(f));
+  }
+
+  // former partners: divorce, else _CURRENT, else all but latest marriage
+  const marked = [...families.values()].some(f => f.current);
+  const marrYear = f => +(yearOf(f.marriage?.date) ?? NaN);
+  for (const f of families.values()) {
+    f.former = f.divorced || f.parents.some(id => {
+      const fams = people.get(id).spouseFams;
+      if (fams.length < 2) return false;
+      if (marked) return !f.current;
+      const latest = Math.max(...fams.map(marrYear).filter(y => !isNaN(y)));
+      return !isNaN(marrYear(f)) && marrYear(f) < latest;
+    });
+  }
+
+  for (const p of people.values()) {
+    // main parents: _PRIMARY, else birth over adoptive
+    const isBirth = f => !p.pedigree[f.id] || p.pedigree[f.id] === 'birth';
+    p.primaryParentFam = p.parentFams.find(f => f.primary) || p.parentFams.find(isBirth) || p.parentFams[0] || null;
+    p.parents = p.primaryParentFam ? p.primaryParentFam.parents : [];
+    p.relationToParents = p.primaryParentFam && !isBirth(p.primaryParentFam) ? p.pedigree[p.primaryParentFam.id] : '';
+    p.otherParents = p.parentFams.filter(f => f !== p.primaryParentFam && f.parents.length)
+      .map(f => ({ ids: f.parents, kind: p.pedigree[f.id] || '' }));
+    p.partners = p.spouseFams
+      .map(f => ({ id: f.parents.find(x => x !== p.id), fam: f, former: f.former }))
+      .filter(x => x.id);
+    p.children = sortByBirth(unique(p.spouseFams.flatMap(f => f.children)), people);
+    p.siblings = sortByBirth(unique(p.parentFams.flatMap(f => f.children)).filter(x => x !== p.id), people);
+  }
+
+  assignGenerations(people, families);
+  const maxGen = Math.max(0, ...[...people.values()].map(p => p.gen));
+  for (const p of people.values()) {
+    p.rarity = tierFor(p.gen, maxGen);
+    p.descendants = countDescendants(p, people);
+  }
+  return { title, people, families, maxGen };
+}
+
+// INDI -> person: birth name, photo, events with baptism/burial fallbacks
+function readPerson(r, notes, objes) {
+  const names = kids(r, 'NAME');
+  const nameNode = names.find(n => !/marr|aka|also|nick/i.test(kid(n, 'TYPE')?.value || '')) || names[0];
+  const rawName = nameNode?.value || '';
+  const slashed = rawName.match(/\/([^/]*)\//);
+  const givn = kid(nameNode, 'GIVN')?.value.trim();
+  const surn = kid(nameNode, 'SURN')?.value.trim();
+  let name = rawName.replace(/\//g, ' ').replace(/\s+/g, ' ').trim();
+  if (!name) name = [givn, surn].filter(Boolean).join(' ') || 'Unknown';
+  const words = name.split(' ');
+  const surname = (slashed && slashed[1].trim()) || surn || (words.length > 1 ? words[words.length - 1] : '');
+
+  const media = [...kids(r, '_PHOTO'), ...kids(r, 'OBJE')]
+    .map(o => ref(o).startsWith('@') ? objes.get(ref(o)) : o)
+    .filter(rec => kid(rec, 'FILE')?.value.trim());
+  const main = media.find(rec => /^y/i.test(ref(kid(rec, '_PRIM')))) || media[0];
+  const photo = main ? kid(main, 'FILE').value.trim() : '';
+
+  const textOf = tag => kids(r, tag).map(n => n.value.trim()).filter(Boolean).join(', ');
+  const firstEvent = (...tags) => tags.map(t => readEvent(r, t)).find(Boolean) || null;
+  const pedigree = {};
+  for (const c of kids(r, 'FAMC')) {
+    const pedi = (kid(c, 'PEDI')?.value || '').trim().toLowerCase();
+    if (pedi) pedigree[ref(c)] = pedi;
+  }
+
+  return {
+    id: r.xref, name, first: words[0], surname,
+    nick: kid(nameNode, 'NICK')?.value.trim() || kid(r, 'NICK')?.value.trim() || '',
+    sex: (kid(r, 'SEX')?.value || '').trim().toUpperCase(),
+    birth: firstEvent('BIRT', 'CHR', 'BAPM'),
+    death: readEvent(r, 'DEAT'),
+    burial: firstEvent('BURI', 'CREM'),
+    deceased: ['DEAT', 'BURI', 'CREM'].some(t => kid(r, t)),
+    occupation: textOf('OCCU'),
+    education: textOf('EDUC'),
+    notes: [...kids(r, 'NOTE'), ...kids(r, 'SNOTE')]
+      .map(n => ref(n).startsWith('@') ? notes.get(ref(n)) : n.value)
+      .map(n => (n || '').replace(/^Bio notes:\s*/i, '').trim())
+      .filter(Boolean),
+    photo, pedigree,
+  };
+}
+
+function readFamily(r) {
+  return {
+    id: r.xref,
+    husb: ref(kid(r, 'HUSB')) || null,
+    wife: ref(kid(r, 'WIFE')) || null,
+    children: kids(r, 'CHIL').map(ref),
+    current: ref(kid(r, '_CURRENT')) === 'Y',
+    primary: ref(kid(r, '_PRIMARY')) === 'Y',
+    marriage: readEvent(r, 'MARR'),
+    divorced: !!(kid(r, 'DIV') || kid(r, 'ANUL')),
+  };
+}
+
+// ---------- Text encoding ----------
+// UTF-8, UTF-16, Windows-1252, ANSEL
+function decodeGedcom(buffer) {
+  const b = new Uint8Array(buffer);
+  if (b[0] === 0xFF && b[1] === 0xFE) return new TextDecoder('utf-16le').decode(b);
+  if (b[0] === 0xFE && b[1] === 0xFF) return new TextDecoder('utf-16be').decode(b);
+  if (b[0] === 0x30 && b[1] === 0x00) return new TextDecoder('utf-16le').decode(b);
+  if (b[0] === 0x00 && b[1] === 0x30) return new TextDecoder('utf-16be').decode(b);
+  try { return new TextDecoder('utf-8', { fatal: true }).decode(b); } catch { /* not UTF-8 */ }
+  const head = new TextDecoder('latin1').decode(b.subarray(0, 4096));
+  return /\n\s*1\s+CHAR\s+ANSEL/i.test(head) ? decodeAnsel(b) : new TextDecoder('windows-1252').decode(b);
+}
+
+// ANSEL: accent before the letter (Unicode: after)
+const ANSEL_CHARS = { 0xA1: 'Ł', 0xA2: 'Ø', 0xA3: 'Đ', 0xA4: 'Þ', 0xA5: 'Æ', 0xA6: 'Œ', 0xA7: 'ʹ', 0xA8: '·', 0xA9: '♭', 0xAA: '®',
+  0xAB: '±', 0xAC: 'Ơ', 0xAD: 'Ư', 0xAE: 'ʼ', 0xB0: 'ʻ', 0xB1: 'ł', 0xB2: 'ø', 0xB3: 'đ', 0xB4: 'þ', 0xB5: 'æ', 0xB6: 'œ',
+  0xB7: 'ʺ', 0xB8: 'ı', 0xB9: '£', 0xBA: 'ð', 0xBC: 'ơ', 0xBD: 'ư', 0xC0: '°', 0xC1: 'ℓ', 0xC2: '℗', 0xC3: '©', 0xC4: '♯',
+  0xC5: '¿', 0xC6: '¡', 0xCF: 'ß' };
+const ANSEL_MARKS = { 0xE0: '̉', 0xE1: '̀', 0xE2: '́', 0xE3: '̂', 0xE4: '̃', 0xE5: '̄',
+  0xE6: '̆', 0xE7: '̇', 0xE8: '̈', 0xE9: '̌', 0xEA: '̊', 0xEB: '︠', 0xEC: '︡',
+  0xED: '̕', 0xEE: '̋', 0xEF: '̐', 0xF0: '̧', 0xF1: '̨', 0xF2: '̣', 0xF3: '̤',
+  0xF4: '̥', 0xF5: '̳', 0xF6: '̲', 0xF7: '̦', 0xF8: '̜', 0xF9: '̮', 0xFA: '︢',
+  0xFB: '︣', 0xFE: '̓' };
+function decodeAnsel(b) {
+  let out = '', marks = '';
+  for (const byte of b) {
+    if (ANSEL_MARKS[byte]) { marks += ANSEL_MARKS[byte]; continue; }
+    out += (byte < 0x80 ? String.fromCharCode(byte) : ANSEL_CHARS[byte] || '�') + marks;
+    marks = '';
+  }
+  return out.normalize('NFC');
+}
+
+// ---------- Generations ----------
+// partners share a row, children one below; then settle cross-generation marriages
+function assignGenerations(people, families) {
+  const gen = new Map(), groups = [];
+  for (const start of people.keys()) {
+    if (gen.has(start)) continue;
+    const group = [start];
+    gen.set(start, 0);
+    for (let i = 0; i < group.length; i++) {
+      const id = group[i], g = gen.get(id), p = people.get(id);
+      const visit = (nid, ng) => { if (!gen.has(nid)) { gen.set(nid, ng); group.push(nid); } };
+      p.spouseFams.forEach(f => { f.parents.forEach(x => visit(x, g)); f.children.forEach(x => visit(x, g + 1)); });
+      p.parentFams.forEach(f => { f.parents.forEach(x => visit(x, g - 1)); f.children.forEach(x => visit(x, g)); });
+    }
+    groups.push(group);
+  }
+  for (let pass = 0; pass < people.size; pass++) {
+    let changed = false;
+    for (const f of families.values()) {
+      if (!f.parents.length) continue;
+      const g = Math.max(...f.parents.map(id => gen.get(id)));
+      for (const id of f.parents) if (gen.get(id) < g) { gen.set(id, g); changed = true; }
+      for (const id of f.children) if (gen.get(id) <= g) { gen.set(id, g + 1); changed = true; }
+    }
+    if (!changed) break;
+  }
+  for (const group of groups) {
+    const min = Math.min(...group.map(id => gen.get(id)));
+    group.forEach(id => { people.get(id).gen = gen.get(id) - min + 1; });
+  }
+}
+
+function countDescendants(p, people) {
+  const seen = new Set(), todo = [...p.children];
+  while (todo.length) {
+    const id = todo.pop();
+    if (seen.has(id) || id === p.id) continue;
+    seen.add(id);
+    todo.push(...people.get(id).children);
+  }
+  return seen.size;
+}
+
+// ---------- Layout ----------
+// rows of units (person + partners): top-down under parents, then bottom-up to centre
+function arrangeCouple(group, people) {
+  if (group.length === 1) return group;
+  const degree = id => people.get(id).partners.filter(pr => group.includes(pr.id)).length;
+  const hub = group.reduce((a, b) => degree(b) > degree(a) ? b : a);
+  const others = group.filter(id => id !== hub);
+  if (others.length === 1) return people.get(hub).sex === 'F' ? [others[0], hub] : [hub, others[0]];
+  const half = Math.floor(others.length / 2);
+  return [...others.slice(0, half), hub, ...others.slice(half)];
+}
+
+function layout(model) {
+  const { people } = model;
+  const rows = new Map();
+  for (const p of people.values()) {
+    if (!rows.has(p.gen)) rows.set(p.gen, []);
+    rows.get(p.gen).push(p);
+  }
+  const gens = [...rows.keys()].sort((a, b) => a - b);
+  const unitOf = new Map(), unitsByGen = new Map();
+
+  for (const g of gens) {
+    const units = [];
+    for (const p of rows.get(g)) {
+      if (unitOf.has(p.id)) continue;
+      const group = [p.id];
+      for (let i = 0; i < group.length; i++) {
+        for (const pr of people.get(group[i]).partners) {
+          const q = people.get(pr.id);
+          if (q.gen === g && !unitOf.has(q.id) && !group.includes(q.id)) group.push(q.id);
+        }
+      }
+      const members = arrangeCouple(group, people);
+      const unit = { members, gen: g, idx: units.length, x: 0, w: members.length * CW + (members.length - 1) * GAP_IN };
+      members.forEach(id => unitOf.set(id, unit));
+      units.push(unit);
+    }
+    unitsByGen.set(g, units);
+  }
+
+  const centerX = id => { const u = unitOf.get(id); return u.x + u.members.indexOf(id) * (CW + GAP_IN) + CW / 2; };
+  const anchorX = f => mean(f.parents.map(centerX));
+  const placed = new Set();
+
+  for (const g of gens) {
+    const items = unitsByGen.get(g).map(u => {
+      for (const id of u.members) {
+        const f = people.get(id).primaryParentFam;
+        if (f && f.parents.length && f.parents.every(pid => placed.has(pid))) {
+          return { u, fam: f, key: anchorX(f), k: f.children.indexOf(id) };
+        }
+      }
+      return { u, fam: null, key: Infinity, k: 0 };
+    });
+    items.sort((a, b) => (a.key === b.key ? 0 : a.key < b.key ? -1 : 1) || a.k - b.k || a.u.idx - b.u.idx);
+
+    let cursor = null;
+    for (let i = 0; i < items.length;) {
+      let j = i + 1;
+      if (items[i].fam) while (j < items.length && items[j].fam === items[i].fam) j++;
+      const group = items.slice(i, j);
+      const gw = group.reduce((s, it) => s + it.u.w, 0) + (group.length - 1) * GAP_OUT;
+      let left = group[0].fam ? group[0].key - gw / 2 : (cursor ?? 0);
+      if (cursor !== null) left = Math.max(left, cursor);
+      for (const it of group) { it.u.x = left; left += it.u.w + GAP_OUT; }
+      cursor = left;
+      i = j;
+    }
+    unitsByGen.get(g).forEach(u => u.members.forEach(id => placed.add(id)));
+  }
+
+  for (let gi = gens.length - 2; gi >= 0; gi--) {
+    const units = [...unitsByGen.get(gens[gi])].sort((a, b) => a.x - b.x);
+    let cursor = null;
+    for (const u of units) {
+      const fams = unique(u.members.flatMap(id => people.get(id).spouseFams))
+        .filter(f => f.parents.every(pid => unitOf.get(pid) === u));
+      const shifts = [];
+      for (const f of fams) {
+        const kidsBelow = f.children.filter(id => people.get(id).gen > u.gen);
+        if (kidsBelow.length) shifts.push(mean(kidsBelow.map(centerX)) - anchorX(f));
+      }
+      let left = u.x + (shifts.length ? mean(shifts) : 0);
+      if (cursor !== null) left = Math.max(left, cursor);
+      u.x = left;
+      cursor = left + u.w + GAP_OUT;
+    }
+  }
+
+  let minX = Infinity, maxX = -Infinity;
+  for (const units of unitsByGen.values()) for (const u of units) { minX = Math.min(minX, u.x); maxX = Math.max(maxX, u.x + u.w); }
+  const pos = new Map();
+  const rowsY = gens.map((g, i) => ({ gen: g, y: MARGIN_Y + i * ROW_H }));
+  gens.forEach((g, i) => {
+    for (const u of unitsByGen.get(g)) {
+      u.members.forEach((id, k) => pos.set(id, { x: u.x - minX + MARGIN_X + k * (CW + GAP_IN), y: MARGIN_Y + i * ROW_H }));
+    }
+  });
+  return { pos, rowsY, width: maxX - minX + MARGIN_X * 2, height: MARGIN_Y * 2 + (gens.length - 1) * ROW_H + CH };
+}
+
+function connectorPaths(m) {
+  const out = [], busCount = new Map(), coupleY = CH * 0.42;
+  for (const f of m.families.values()) {
+    const ps = f.parents.map(id => m.pos.get(id));
+    const cs = f.children.map(id => m.pos.get(id));
+    if (!ps.length) continue;
+    let ax, ay;
+    if (ps.length === 2) {
+      const [a, b] = ps[0].x <= ps[1].x ? ps : [ps[1], ps[0]];
+      out.push({ cls: 'couple' + (f.former ? ' former' : ''), d: `M${a.x + CW} ${a.y + coupleY}L${b.x} ${b.y + coupleY}` });
+      ax = (a.x + CW + b.x) / 2;
+      ay = (a.y + b.y) / 2 + coupleY;
+    } else {
+      ax = ps[0].x + CW / 2;
+      ay = ps[0].y + CH;
+    }
+    if (!cs.length) continue;
+    const bottom = Math.max(...ps.map(p => p.y)) + CH;
+    const n = busCount.get(bottom) || 0;
+    busCount.set(bottom, n + 1);
+    const busY = bottom + 44 + (n % 5) * 10;
+    const xs = cs.map(c => c.x + CW / 2);
+    let d = `M${ax} ${ay}V${busY}M${Math.min(ax, ...xs)} ${busY}H${Math.max(ax, ...xs)}`;
+    for (const c of cs) d += `M${c.x + CW / 2} ${busY}V${c.y}`;
+    out.push({ cls: 'kin', d });
+  }
+  return out;
+}
+
+function prepare(text) {
+  const model = buildModel(parseGedcom(text));
+  if (!model.people.size) throw new Error('No people found in this file.');
+  const { pos, rowsY, width, height } = layout(model);
+  const order = [...model.people.values()].sort((a, b) => a.gen - b.gen || pos.get(a.id).x - pos.get(b.id).x);
+  order.forEach((p, i) => { p.no = i + 1; });
+  return { ...model, pos, rowsY, width, height, order };
+}
+
+// ---------- Photos ----------
+// match by name (optional birth year) or GEDCOM path
+function matchPhotos(people, files) {
+  const byKey = new Map(), byPath = new Map(), byBase = new Map();
+  for (const f of files) {
+    const norm = f.path.replace(/\\/g, '/').toLowerCase();
+    const base = norm.split('/').pop();
+    byPath.set(norm, f);
+    if (!byBase.has(base)) byBase.set(base, f);
+    const k = nameKey(base.replace(/\.[^.]+$/, ''));
+    if (k && !byKey.has(k)) byKey.set(k, f);
+  }
+  const matched = new Map(), used = new Set();
+  for (const p of people.values()) {
+    const key = nameKey(p.name), year = yearOf(p.birth?.date);
+    let f = (year && byKey.get(key + year)) || byKey.get(key);
+    if (!f && p.photo && !/^(https?:|data:)/i.test(p.photo)) {
+      const want = p.photo.replace(/\\/g, '/').toLowerCase();
+      f = [...byPath].find(([path]) => path.endsWith('/' + want) || path === want)?.[1] || byBase.get(want.split('/').pop());
+    }
+    if (f) { matched.set(p.id, f); used.add(f); }
+  }
+  return { matched, unused: files.filter(f => !used.has(f)) };
+}
+
+if (typeof module !== 'undefined') module.exports = { parseGedcom, decodeGedcom, parseDate, buildModel, layout, connectorPaths, prepare, matchPhotos, nameKey, SAMPLE_GED, samplePhotos };
+</script>
+
+<!-- UI -->
+<script>
+'use strict';
+
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const state = { m: null, view: 'tree', current: null, flipped: false };
+// page snapshot for family packs
+const PRISTINE = document.documentElement.cloneNode(true);
+const NOW_YEAR = new Date().getFullYear();
+
+// ---------- Card text ----------
+function typeOf(key) {
+  let h = 0;
+  for (const ch of (key || '?').toLowerCase()) h = (h * 31 + ch.codePointAt(0)) >>> 0;
+  return TYPES[h % TYPES.length];
+}
+const initials = name => { const w = name.split(' ').filter(Boolean); return ((w[0]?.[0] || '') + (w.length > 1 ? w[w.length - 1][0] : '')).toUpperCase(); };
+const MONTHS = /\b(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\b/g;
+const fmtDate = d => (d || '').replace(/^\s*\((.*)\)\s*$/, '$1')
+  .replace(MONTHS, s => s[0] + s.slice(1).toLowerCase())
+  .replace(/\bABT\b|\bEST\b|\bCAL\b/g, 'c.').replace(/\bBEF\b/g, 'before').replace(/\bAFT\b/g, 'after')
+  .replace(/\bBET\b/g, 'between').replace(/\bAND\b/g, 'and').replace(/\bFROM\b/g, 'from').replace(/\bTO\b/g, 'to');
+const sexSymbol = s => s === 'M' ? '♂' : s === 'F' ? '♀' : '';
+const sexWord = s => s === 'M' ? 'Male' : s === 'F' ? 'Female' : '';
+
+function joinList(items, max = 4) {
+  if (items.length <= 1) return items[0] || '';
+  if (items.length > max) return `${items.slice(0, max - 1).join(', ')} & ${items.length - max + 1} more`;
+  return `${items.slice(0, -1).join(', ')} & ${items[items.length - 1]}`;
+}
+
+const sameEra = (a, b) => a.era.toLowerCase() === b.era.toLowerCase();
+// end of life: death, else burial
+const endDate = p => parseDate(p.death?.date || p.burial?.date);
+function lifespan(p) {
+  const b = parseDate(p.birth?.date), d = endDate(p);
+  if (b.year && d.year) {
+    if (sameEra(b, d) && b.side !== 'around') {
+      const range = `${b.year}–${d.year}`;
+      return !b.era ? range : b.side === 'before' ? `${b.era} ${range}` : `${range} ${b.era}`;
+    }
+    return `${b.yearText}–${d.yearText}`;
+  }
+  return b.year ? `${b.yearText}–?` : d.year ? `d. ${d.yearText}` : '';
+}
+function lifeShort(p) {
+  if (p.deceased) return lifespan(p);
+  const b = parseDate(p.birth?.date);
+  return b.year ? `b. ${b.yearText}` : '';
+}
+function lifeLong(p) {
+  const b = parseDate(p.birth?.date), d = endDate(p);
+  if (p.deceased) {
+    if (!b.year && !d.year) return 'In loving memory';
+    const signed = x => x.backwards ? -x.year : +x.year;
+    const age = b.year && d.year && (sameEra(b, d) || (b.backwards && !d.backwards)) ? signed(d) - signed(b) : -1;
+    return lifespan(p) + (age >= 0 ? ` (aged ~${age})` : '');
+  }
+  if (!b.year) return b.text && !/^y$/i.test(b.text) ? `Born ${fmtDate(p.birth.date)}` : '';
+  return b.era ? `Born ${fmtDate(p.birth.date)}` : `Born ${fmtDate(p.birth.date)} · Age ~${NOW_YEAR - b.year}`;
+}
+function eventText(e) { return e ? [fmtDate(e.date), e.place].filter(Boolean).join(' · ') : ''; }
+
+// card quote: note, else occupation + birth, else family links; whole sentences, ~95 chars
+function flavorText(m, p) {
+  if (p.notes.length) return p.notes.join(' ');
+  const date = p.birth?.date && !/^y$/i.test(p.birth.date) ? fmtDate(p.birth.date) : '';
+  const born = [date, p.birth?.place && `in ${p.birth.place}`].filter(Boolean).join(' ');
+  if (p.occupation) return `${p.occupation}${born ? `, born ${born}` : ''}.`;
+  if (born) return `Born ${born}.`;
+  const first = id => m.people.get(id).first;
+  const s = [];
+  if (p.parents.length) s.push([2, `${p.sex === 'M' ? 'Son' : p.sex === 'F' ? 'Daughter' : 'Child'} of ${joinList(p.parents.map(first))}.`]);
+  const partners = p.partners.filter(x => !x.former);
+  if (partners.length) s.push([3, `Partner of ${joinList(partners.map(x => first(x.id)))}.`]);
+  if (p.children.length) s.push([4, `Parent of ${joinList(p.children.map(first))}.`]);
+  if (!p.parents.length && p.gen === 1) s.push([5, `Where the ${p.surname || 'family'} story begins in this tree.`]);
+  if (p.deceased) s.push([1, 'Remembered with love.']);
+  const keep = new Set();
+  let length = 0;
+  for (const item of [...s].sort((a, b) => a[0] - b[0])) {
+    const add = item[1].length + (keep.size ? 1 : 0);
+    if (!keep.size || length + add <= 95) { keep.add(item); length += add; }
+  }
+  return s.filter(item => keep.has(item)).map(item => item[1]).join(' ');
+}
+
+// ---------- Card markup ----------
+function cardFrame(p, size, extraCls, inner, style = '') {
+  const t = typeOf(p.surname || p.name);
+  const cls = `card ${size} t${p.rarity}${p.deceased ? ' memorial' : ''}${extraCls}`;
+  return `<div class="${cls}" style="--t1:${t.c1};--t2:${t.c2};--r:${p.rarity};${style}" data-id="${esc(p.id)}"` +
+    (size === 'mini' ? ` role="button" tabindex="0" aria-label="${esc(p.name)}"` : '') +
+    `><div class="card-in">${inner(t)}</div><div class="shine"></div></div>`;
+}
+
+function cardHTML(m, p, size, style = '') {
+  const no = `#${String(p.no).padStart(3, '0')}/${String(m.order.length).padStart(3, '0')}`;
+  const stars = TIERS[p.rarity].sym;
+  const family = p.surname ? `${p.surname} Family` : 'Family';
+  return cardFrame(p, size, '', t => {
+    const head = `<div class="c-head"><span class="c-gen">GEN ${p.gen}</span><span class="c-name">${esc(p.name)}</span>` +
+      `<span class="c-type" title="${esc(t.name)} type">${t.icon}</span></div>`;
+    const art = `<div class="c-art"><span class="initials">${esc(initials(p.name))}</span>` +
+      (p.photo ? `<img src="${esc(p.photo)}" alt="" onerror="this.remove()">` : '') +
+      (p.deceased ? `<span class="c-ribbon">🕊️<span class="big-only"> In Memoriam</span></span>` : '') + `</div>`;
+
+    if (size === 'mini') {
+      return head + art + `<div class="c-strip">${esc(family)}</div>` +
+        `<div class="c-meta">${sexSymbol(p.sex)} ${esc(lifeShort(p))}</div>` +
+        `<div class="c-foot"><span>${no}</span><span class="stars">${stars}</span></div>`;
+    }
+
+    const rel = id => `<button class="rel" data-goto="${esc(id)}">${esc(m.people.get(id).first)}</button>`;
+    const moves = [];
+    moves.push(['🌳', 'Roots', p.parents.length ? `Child of ${joinList(p.parents.map(rel))}` : 'First of this branch in the tree']);
+    if (p.partners.length) {
+      moves.push(['💞', 'Bond', joinList(p.partners.map(x => rel(x.id) + (x.former ? ' (former)' : '')), 3)]);
+    }
+    if (p.children.length) {
+      moves.push(['🌱', 'Legacy', `Parent of ${joinList(p.children.map(rel), 3)}`]);
+    }
+    const strip = [family, sexWord(p.sex), lifeLong(p)].filter(Boolean).join(' · ');
+    return head + art +
+      `<div class="c-strip">${esc(strip)}</div>` +
+      `<div class="c-moves">${moves.map(([i, n, txt]) => `<div class="move"><span class="m-ico">${i}</span><div class="m-txt"><b>${n}</b>${txt}</div></div>`).join('')}</div>` +
+      `<div class="c-stats"><div><small>Siblings</small><b>${p.siblings.length}</b></div>` +
+      `<div><small>Children</small><b>${p.children.length}</b></div><div><small>Descendants</small><b>${p.descendants}</b></div></div>` +
+      `<div class="c-flavor"><span>${esc(flavorText(m, p))}</span></div>` +
+      `<div class="c-foot"><span>${no}</span><span><span class="stars">${stars}</span> ${TIERS[p.rarity].name}</span></div>`;
+  }, style);
+}
+
+function backHTML(m, p) {
+  return cardFrame(p, 'big', ' back', t => {
+    const rel = id => `<button class="rel" data-goto="${esc(id)}">${esc(m.people.get(id).name)}</button>`;
+    const relList = ids => ids.map(rel).join(', ');
+    const rows = [];
+    const add = (k, v, cls = '') => { if (v) rows.push(`<dt>${k}</dt><dd class="${cls}">${v}</dd>`); };
+    add('Full name', esc(p.name));
+    add('Nickname', esc(p.nick));
+    add('Gender', esc(sexWord(p.sex)));
+    add('Born', esc(eventText(p.birth)) || (p.birth ? 'Yes' : ''));
+    if (p.deceased) add('Died', esc(eventText(p.death)) || 'Date unknown');
+    add('Buried', esc(eventText(p.burial)));
+    add('Occupation', esc(p.occupation));
+    add('Education', esc(p.education));
+    add('Parents', relList(p.parents) + (p.relationToParents ? ` (${esc(p.relationToParents)})` : ''));
+    add('Other parents', p.otherParents.map(o => relList(o.ids) + (o.kind ? ` (${esc(o.kind)})` : '')).join('; '));
+    add('Partners', p.partners.map(x => {
+      const marr = x.fam.marriage?.date ? ` · m. ${esc(fmtDate(x.fam.marriage.date))}` : '';
+      return x.former ? `<span class="former">${rel(x.id)}${marr} (former)</span>` : rel(x.id) + marr;
+    }).join(', '));
+    add('Children', relList(p.children));
+    add('Siblings', relList(p.siblings));
+    add('Notes', esc(p.notes.join('\n\n')), 'notes');
+    return `<div class="b-head"><span class="c-type">${t.icon}</span><div><b>Family Record</b><small>${esc(p.name)} · GEN ${p.gen} · ${TIERS[p.rarity].name}</small></div></div>` +
+      `<div class="b-body"><dl class="rec">${rows.join('')}</dl></div>` +
+      `<div class="b-hint">Tap a name to jump to their card · tap elsewhere to flip</div>`;
+  });
+}
+
+// ---------- Loading ----------
+// photos: { path, file } or { path, url }
+let objectUrls = [];
+
+function loadTree(text, label, photos = []) {
+  let m;
+  try { m = prepare(text); }
+  catch (err) { console.error(err); toast('Could not read that file. Is it a GEDCOM (.ged) export?'); return null; }
+  objectUrls.forEach(u => URL.revokeObjectURL(u));
+  objectUrls = [];
+  const { matched, unused } = matchPhotos(m.people, photos);
+  const urls = new Map();
+  for (const [id, f] of matched) {
+    if (!urls.has(f)) {
+      let u = f.url;
+      if (!u) { u = URL.createObjectURL(f.file); objectUrls.push(u); }
+      urls.set(f, u);
+    }
+    const p = m.people.get(id);
+    p.photo = urls.get(f);
+    p.photoSrc = f;
+  }
+  state.m = m;
+  state.gedText = text;
+  state.photos = photos;
+  state.label = label || m.title || 'Family tree';
+  $('#fileName').textContent = `${state.label} · ${m.order.length} cards · ${m.maxGen} generations` +
+    (matched.size ? ` · ${matched.size} photo${matched.size > 1 ? 's' : ''}` : '');
+  renderTree();
+  renderDeck();
+  $('#names').innerHTML = unique(m.order.map(p => p.name)).map(n => `<option value="${esc(n)}">`).join('');
+  $('#welcome').hidden = true;
+  document.body.classList.remove('home');
+  $('#tools').hidden = false;
+  setView('tree');
+  fit();
+  return { photoCount: matched.size, unused };
+}
+
+const isGed = path => /\.(ged|gedcom)$/i.test(path);
+const baseName = path => path.split('/').pop();
+
+// newest .ged + images; images alone join the open tree
+async function handleEntries(entries, folderName) {
+  const geds = entries.filter(e => isGed(e.path)).sort((a, b) => b.file.lastModified - a.file.lastModified);
+  const images = entries.filter(e => IMAGE_RE.test(e.path));
+  let result;
+  if (geds.length) {
+    const text = decodeGedcom(await geds[0].file.arrayBuffer());
+    result = loadTree(text, folderName || baseName(geds[0].path).replace(/\.(ged|gedcom)$/i, ''), images);
+  } else if (images.length && state.m) {
+    result = loadTree(state.gedText, state.label, [...images, ...state.photos]);
+  } else {
+    toast(images.length
+      ? 'Open a .ged file first, or pick it together with the photos.'
+      : 'No .ged file found. Export your tree as GEDCOM from your genealogy app and put it in this folder.');
+    return;
+  }
+  if (!result || (!images.length && geds.length < 2)) return;
+  const parts = [`${result.photoCount} photo${result.photoCount === 1 ? '' : 's'} matched`];
+  const un = result.unused.filter(f => f.file);
+  if (un.length) parts.push(`not matched: ${un.slice(0, 3).map(f => baseName(f.path)).join(', ')}${un.length > 3 ? ` +${un.length - 3} more` : ''}`);
+  if (geds.length > 1) parts.push(`using newest file ${baseName(geds[0].path)}`);
+  toast(parts.join(' · '), 'info', 8000);
+}
+
+function forgetDir() { state.dir = null; $("#reloadBtn").hidden = true; }
+const fromFileList = list => [...list].map(f => ({ path: f.webkitRelativePath || f.name, file: f }));
+
+// ---------- Folder access ----------
+async function readDir(dir, prefix = '', depth = 0) {
+  const out = [];
+  for await (const [name, h] of dir.entries()) {
+    if (h.kind === 'file' && (isGed(name) || IMAGE_RE.test(name))) out.push({ path: prefix + name, file: await h.getFile() });
+    else if (h.kind === 'directory' && depth < 3 && !name.startsWith('.')) out.push(...await readDir(h, `${prefix}${name}/`, depth + 1));
+  }
+  return out;
+}
+async function loadFromHandle(h) {
+  const entries = await readDir(h);
+  state.dir = h;
+  $('#reloadBtn').hidden = false;
+  await handleEntries(entries, h.name);
+}
+async function openFolder() {
+  if (!window.showDirectoryPicker) { $('#folderInput').click(); return; }
+  let h;
+  try { h = await showDirectoryPicker({ id: 'kindex' }); }
+  catch (e) {
+    if (e.name !== 'AbortError') { console.warn(e); $('#folderInput').click(); }
+    return;
+  }
+  try { await loadFromHandle(h); }
+  catch (e) { console.error(e); toast('Could not read that folder.'); }
+}
+async function reopenFolder(h) {
+  try {
+    if (await h.queryPermission({ mode: 'read' }) !== 'granted' && await h.requestPermission({ mode: 'read' }) !== 'granted') return;
+    await loadFromHandle(h);
+  } catch (e) { console.error(e); toast('Could not reload that folder. Use “Open family folder” instead.'); }
+}
+
+// dropped entries -> files
+async function entryFiles(entry, prefix = '') {
+  if (entry.isFile) return [{ path: prefix + entry.name, file: await new Promise((res, rej) => entry.file(res, rej)) }];
+  if (!entry.isDirectory) return [];
+  const reader = entry.createReader(), all = [];
+  for (let batch; (batch = await new Promise((res, rej) => reader.readEntries(res, rej))).length;) all.push(...batch);
+  const out = [];
+  for (const e of all) out.push(...await entryFiles(e, `${prefix}${entry.name}/`));
+  return out;
+}
+
+// ---------- Family pack ----------
+
+async function shrinkPhoto(file, max = 640) {
+  const bmp = await createImageBitmap(file);
+  const k = Math.min(1, max / Math.max(bmp.width, bmp.height));
+  const c = document.createElement('canvas');
+  c.width = Math.round(bmp.width * k);
+  c.height = Math.round(bmp.height * k);
+  c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+  bmp.close();
+  return c.toDataURL('image/jpeg', 0.85);
+}
+// one HTML file: app + tree + photos
+async function exportPack() {
+  const m = state.m, btn = $('#packBtn');
+  btn.disabled = true;
+  toast('Preparing your download…', 'info');
+  try {
+    const photos = {};
+    for (const p of m.order) {
+      const src = p.photoSrc;
+      let data = null;
+      try { data = src?.file ? await shrinkPhoto(src.file) : src?.url?.startsWith('data:') ? src.url : null; }
+      catch (e) { console.warn('Skipped photo for', p.name, e); }
+      const year = yearOf(p.birth?.date);
+      if (data) photos[`${p.name}${year ? ' ' + year : ''}.jpg`] = data;
+    }
+    const doc = PRISTINE.cloneNode(true);
+    doc.querySelector('#pack')?.remove();
+    const s = document.createElement('script');
+    s.id = 'pack';
+    s.type = 'application/json';
+    s.textContent = JSON.stringify({ v: 1, title: state.label, ged: state.gedText, photos }).replace(/</g, '\\u003c');
+    doc.querySelector('body').insertBefore(s, doc.querySelector('#core'));
+    const blob = new Blob(['<!doctype html>\n' + doc.outerHTML], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${state.label.replace(/[\\/:*?"<>|]+/g, ' ').trim() || 'Family'} - KinDex.html`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+    toast(`Download ready (${(blob.size / 1048576).toFixed(1)} MB, ${Object.keys(photos).length} photos). ` +
+      'It contains the whole tree, so share it only with family.', 'info', 9000);
+  } catch (e) {
+    console.error(e);
+    toast('Could not create the download.');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ---------- Toast ----------
+let toastTimer;
+function toast(msg, kind = 'error', ms = 4500) {
+  const el = $('#toast');
+  el.textContent = msg;
+  el.className = `toast ${kind}`;
+  el.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.hidden = true; }, ms);
+}
+
+// ---------- Tree view ----------
+const viewport = $('#viewport'), world = $('#world');
+const view = { s: 1, tx: 0, ty: 0 };
+
+function renderTree() {
+  const m = state.m;
+  const paths = connectorPaths(m).map(l => `<path class="${l.cls}" d="${l.d}"/>`).join('');
+  const labels = m.rowsY.map(r => {
+    const t = TIERS[tierFor(r.gen, m.maxGen)];
+    return `<div class="gen-label" style="top:${r.y + CH / 2 - 22}px">GEN ${r.gen}<small>${t.sym} ${t.name}</small></div>`;
+  }).join('');
+  world.style.width = m.width + 'px';
+  world.style.height = m.height + 'px';
+  world.innerHTML = `<svg class="links" width="${m.width}" height="${m.height}">${paths}</svg>` + labels +
+    m.order.map(p => { const q = m.pos.get(p.id); return cardHTML(m, p, 'mini', `left:${q.x}px;top:${q.y}px`); }).join('');
+}
+
+function applyView(animate = false) {
+  world.classList.toggle('anim', animate);
+  world.style.transform = `translate(${view.tx}px, ${view.ty}px) scale(${view.s})`;
+}
+function zoomTo(s, cx, cy) {
+  s = clamp(s, 0.12, 2.5);
+  const k = s / view.s;
+  view.tx = cx - (cx - view.tx) * k;
+  view.ty = cy - (cy - view.ty) * k;
+  view.s = s;
+  applyView();
+}
+function zoomBy(f) { const r = viewport.getBoundingClientRect(); zoomTo(view.s * f, r.width / 2, r.height / 2); }
+function fit() {
+  if (!state.m) return;
+  const r = viewport.getBoundingClientRect();
+  view.s = clamp(Math.min((r.width - 32) / state.m.width, (r.height - 32) / state.m.height), 0.12, 1.1);
+  view.tx = (r.width - state.m.width * view.s) / 2;
+  view.ty = (r.height - state.m.height * view.s) / 2;
+  applyView(true);
+}
+function centerOn(id) {
+  const q = state.m.pos.get(id), r = viewport.getBoundingClientRect();
+  view.s = Math.max(view.s, 0.8);
+  view.tx = r.width / 2 - (q.x + CW / 2) * view.s;
+  view.ty = r.height / 2 - (q.y + CH / 2) * view.s;
+  applyView(true);
+}
+function highlight(id) {
+  const scope = state.view === 'tree' ? world : $('#deck');
+  const el = scope.querySelector(`[data-id="${CSS.escape(id)}"]`);
+  if (!el) return;
+  if (state.view === 'deck') el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  el.classList.remove('found');
+  void el.offsetWidth;
+  el.classList.add('found');
+}
+
+// pan + zoom; capture only once dragging, so clicks reach cards
+const ptrs = new Map();
+let dragStart = null, dragged = false, pinch = null;
+viewport.addEventListener('pointerdown', e => {
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (ptrs.size === 1) { dragStart = { x: e.clientX, y: e.clientY }; dragged = false; }
+  if (ptrs.size === 2) {
+    const [a, b] = [...ptrs.values()];
+    pinch = { d: Math.hypot(a.x - b.x, a.y - b.y) || 1, s: view.s };
+    dragged = true;
+  }
+});
+viewport.addEventListener('pointermove', e => {
+  const prev = ptrs.get(e.pointerId);
+  if (!prev) return;
+  const cur = { x: e.clientX, y: e.clientY };
+  ptrs.set(e.pointerId, cur);
+  if (ptrs.size === 1) {
+    if (!dragged && Math.hypot(cur.x - dragStart.x, cur.y - dragStart.y) > 5) {
+      dragged = true;
+      viewport.setPointerCapture(e.pointerId);
+      viewport.classList.add('grabbing');
+    }
+    if (dragged) { view.tx += cur.x - prev.x; view.ty += cur.y - prev.y; applyView(); }
+  } else if (ptrs.size === 2 && pinch) {
+    const [a, b] = [...ptrs.values()], r = viewport.getBoundingClientRect();
+    zoomTo(pinch.s * Math.hypot(a.x - b.x, a.y - b.y) / pinch.d, (a.x + b.x) / 2 - r.left, (a.y + b.y) / 2 - r.top);
+  }
+});
+const endPointer = e => {
+  ptrs.delete(e.pointerId);
+  if (ptrs.size < 2) pinch = null;
+  if (!ptrs.size) viewport.classList.remove('grabbing');
+};
+viewport.addEventListener('pointerup', endPointer);
+viewport.addEventListener('pointercancel', endPointer);
+viewport.addEventListener('wheel', e => {
+  e.preventDefault();
+  const r = viewport.getBoundingClientRect();
+  zoomTo(view.s * Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0015)), e.clientX - r.left, e.clientY - r.top);
+}, { passive: false });
+viewport.addEventListener('click', e => {
+  if (dragged) { dragged = false; return; }
+  const c = e.target.closest('.card');
+  if (c) openCard(c.dataset.id);
+});
+
+// ---------- Collection view ----------
+function renderDeck() {
+  const m = state.m, byGen = new Map();
+  m.order.forEach(p => { if (!byGen.has(p.gen)) byGen.set(p.gen, []); byGen.get(p.gen).push(p); });
+  $('#deck').innerHTML = [...byGen].map(([g, ps]) => {
+    const tier = ps[0].rarity, t = TIERS[tier];
+    return `<section class="deck-gen"><h2>Generation ${g} <span class="tier-badge t${tier}">${t.sym} ${t.name}</span>` +
+      `<span>${ps.length} card${ps.length > 1 ? 's' : ''}</span></h2>` +
+      `<div class="deck-grid">${ps.map(p => cardHTML(m, p, 'mini')).join('')}</div></section>`;
+  }).join('');
+}
+$('#deck').addEventListener('click', e => { const c = e.target.closest('.card'); if (c) openCard(c.dataset.id); });
+
+function setView(v) {
+  state.view = v;
+  viewport.hidden = v !== 'tree';
+  $('#deck').hidden = v !== 'deck';
+  $('#zoomSeg').hidden = v !== 'tree';
+  document.querySelectorAll('#viewSeg button').forEach(b => b.classList.toggle('on', b.dataset.view === v));
+}
+document.querySelectorAll('#viewSeg button').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
+
+// Enter/Space opens the focused card
+document.addEventListener('keydown', e => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.('.card.mini')) { e.preventDefault(); openCard(e.target.dataset.id); }
+});
+
+// ---------- Card modal ----------
+const modal = $('#modal'), flipper = $('#flipper');
+let tilt = { rx: 0, ry: 0 };
+
+function applyFlip() {
+  flipper.classList.toggle('flipped', state.flipped);
+  flipper.style.transform = `rotateX(${tilt.rx}deg) rotateY(${tilt.ry + (state.flipped ? 180 : 0)}deg)`;
+}
+function sizeModal() {
+  const navRoom = innerWidth > 640 ? 140 : 0;
+  const s = Math.min(1.25, (innerWidth - 32 - navRoom) / 340, (innerHeight - (innerWidth > 640 ? 110 : 170)) / 476);
+  $('#scaler').style.width = 340 * s + 'px';
+  $('#scaler').style.height = 476 * s + 'px';
+  $('#zoomer').style.transform = `scale(${s})`;
+}
+// shrink long names to 60%, then ellipsis
+function fitName(el) {
+  if (!el) return;
+  el.style.fontSize = '';
+  const full = parseFloat(getComputedStyle(el).fontSize);
+  for (let px = full; el.scrollWidth > el.clientWidth && px > full * 0.6; px -= 0.5) el.style.fontSize = px + 'px';
+}
+function openCard(id) {
+  const m = state.m, p = m?.people.get(id);
+  if (!p) return;
+  state.current = id;
+  state.flipped = false;
+  $('#faceFront').innerHTML = cardHTML(m, p, 'big');
+  $('#faceBack').innerHTML = backHTML(m, p);
+  tilt = { rx: 0, ry: 0 };
+  flipper.classList.remove('tilting');
+  applyFlip();
+  modal.hidden = false;
+  sizeModal();
+  fitName($('#faceFront .c-name'));
+  const sc = $('#scaler');
+  sc.style.animation = 'none';
+  void sc.offsetWidth;
+  sc.style.animation = '';
+  sway();
+}
+function closeModal() { modal.hidden = true; }
+
+// ---------- Save image ----------
+// visible side -> SVG foreignObject -> canvas; photos as data URLs
+async function cardImageBlob(card, type = 'image/png', quality, SCALE = 3) {
+  const W = 340, H = 476, PAD = 24;
+  const clone = card.cloneNode(true);
+  clone.querySelector('.b-hint')?.remove();
+  const dst = clone.querySelectorAll('img');
+  card.querySelectorAll('img').forEach((img, i) => {
+    if (!img.complete || !img.naturalWidth) { dst[i].remove(); return; }
+    if (img.src.startsWith('data:image/svg')) return;
+    const k = Math.min(1, 1200 / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement('canvas');
+    c.width = Math.round(img.naturalWidth * k);
+    c.height = Math.round(img.naturalHeight * k);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    dst[i].setAttribute('src', c.toDataURL('image/jpeg', 0.92));
+    dst[i].removeAttribute('onerror');
+  });
+  const wrap = document.createElement('div');
+  wrap.className = 'snap';
+  wrap.setAttribute('style', `width:${W}px;height:${H}px;padding:${PAD}px;box-sizing:content-box;` +
+    'font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif');
+  const css = document.createElement('style');
+  css.textContent = [...document.querySelectorAll('style')].map(s => s.textContent).join('\n') +
+    '.snap .card.big{animation:none;box-shadow:0 .3em 1em rgba(0,0,0,.35)}.snap .b-body{overflow:hidden}';
+  wrap.append(css, clone);
+  const w = W + 2 * PAD, h = H + 2 * PAD;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w * SCALE}" height="${h * SCALE}" viewBox="0 0 ${w} ${h}">` +
+    `<foreignObject width="100%" height="100%">${new XMLSerializer().serializeToString(wrap)}</foreignObject></svg>`;
+  const img = new Image();
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  await img.decode();
+  const c = document.createElement('canvas');
+  c.width = w * SCALE;
+  c.height = h * SCALE;
+  const g = c.getContext('2d');
+  if (type === 'image/jpeg') { g.fillStyle = '#0e1322'; g.fillRect(0, 0, c.width, c.height); }
+  g.drawImage(img, 0, 0, c.width, c.height);
+  return new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(new Error('Could not encode the image')), type, quality));
+}
+async function saveCardImage() {
+  const p = state.m?.people.get(state.current);
+  const card = $(state.flipped ? '#faceBack .card' : '#faceFront .card');
+  if (!p || !card) return;
+  const btn = $('#saveImgBtn');
+  btn.disabled = true;
+  try {
+    const blob = await cardImageBlob(card, 'image/jpeg', 0.92);
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${p.name.replace(/[\\/:*?"<>|]+/g, ' ').trim()} - KinDex card${state.flipped ? ' (back)' : ''}.jpg`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+  } catch (e) {
+    console.error(e);
+    toast('This browser could not save the card image. Try Chrome, Edge or Firefox.');
+  } finally {
+    btn.disabled = false;
+  }
+}
+function step(dir) {
+  const o = state.m.order, i = o.findIndex(p => p.id === state.current);
+  openCard(o[(i + dir + o.length) % o.length].id);
+}
+// ---------- Card motion ----------
+// open sway via the tilt; mouse move or flip stops it
+let swayFrame = 0;
+function sway() {
+  stopSway();
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const keys = [[0, 5, 18], [.35, -3, -12], [.7, 0, 5], [1, 0, 0]];
+  const ease = x => x < .5 ? 2 * x * x : 1 - 2 * (1 - x) * (1 - x);
+  const start = performance.now(), DUR = 1100;
+  flipper.classList.add('tilting');
+  const frame = now => {
+    const k = Math.min(1, (now - start) / DUR);
+    let i = 0;
+    while (k > keys[i + 1][0]) i++;
+    const [t0, x0, y0] = keys[i], [t1, x1, y1] = keys[i + 1], e = ease((k - t0) / (t1 - t0));
+    tilt = { rx: x0 + (x1 - x0) * e, ry: y0 + (y1 - y0) * e };
+    flipper.style.setProperty('--mx', `${100 - k * 100}%`);
+    flipper.style.setProperty('--my', `${100 - k * 100}%`);
+    applyFlip();
+    if (k < 1) swayFrame = requestAnimationFrame(frame);
+    else { swayFrame = 0; flipper.classList.remove('tilting'); }
+  };
+  swayFrame = requestAnimationFrame(frame);
+}
+function stopSway() {
+  if (!swayFrame) return false;
+  cancelAnimationFrame(swayFrame);
+  swayFrame = 0;
+  return true;
+}
+
+function flip() {
+  if (stopSway()) { tilt = { rx: 0, ry: 0 }; flipper.classList.remove('tilting'); }
+  state.flipped = !state.flipped;
+  applyFlip();
+}
+
+flipper.addEventListener('click', e => {
+  const g = e.target.closest('[data-goto]');
+  if (g) { openCard(g.dataset.goto); return; }
+  flip();
+});
+flipper.addEventListener('pointermove', e => {
+  if (e.pointerType !== 'mouse') return;
+  stopSway();
+  const r = $('#scaler').getBoundingClientRect();
+  const px = clamp((e.clientX - r.left) / r.width, 0, 1), py = clamp((e.clientY - r.top) / r.height, 0, 1);
+  tilt = { rx: (0.5 - py) * 14, ry: (px - 0.5) * 18 };
+  flipper.classList.add('tilting');
+  flipper.style.setProperty('--mx', `${px * 100}%`);
+  flipper.style.setProperty('--my', `${py * 100}%`);
+  applyFlip();
+});
+flipper.addEventListener('pointerleave', () => {
+  tilt = { rx: 0, ry: 0 };
+  flipper.classList.remove('tilting');
+  applyFlip();
+});
+modal.addEventListener('click', e => { if (e.target.closest('[data-close]')) closeModal(); });
+$('#flipBtn').addEventListener('click', flip);
+$('#saveImgBtn').addEventListener('click', saveCardImage);
+$('#prevCard').addEventListener('click', () => step(-1));
+$('#nextCard').addEventListener('click', () => step(1));
+$('#locateBtn').addEventListener('click', () => {
+  const id = state.current;
+  closeModal();
+  setView('tree');
+  centerOn(id);
+  setTimeout(() => highlight(id), 300);
+});
+document.addEventListener('keydown', e => {
+  if (modal.hidden) return;
+  if (e.key === 'Escape') closeModal();
+  else if (e.key === 'ArrowLeft') step(-1);
+  else if (e.key === 'ArrowRight') step(1);
+  else if (e.key.toLowerCase() === 'f') flip();
+});
+document.addEventListener('touchstart', () => {}, { passive: true }); // iOS: needed for :active
+addEventListener('resize', () => { if (!modal.hidden) sizeModal(); });
+
+// ---------- Search ----------
+function findPerson(q) {
+  q = q.trim().toLowerCase();
+  if (!q || !state.m) return null;
+  const ps = state.m.order;
+  return ps.find(p => p.name.toLowerCase() === q) || ps.find(p => p.name.toLowerCase().includes(q));
+}
+function runSearch() {
+  const box = $('#search'), p = findPerson(box.value);
+  if (!p) { if (box.value.trim()) toast('No one by that name in this tree.'); return; }
+  // clear once found (datalist filters by box text)
+  box.value = '';
+  box.blur();
+  if (state.view === 'tree') centerOn(p.id);
+  setTimeout(() => highlight(p.id), state.view === 'tree' ? 300 : 0);
+}
+$('#search').addEventListener('change', runSearch);
+$('#search').addEventListener('keydown', e => { if (e.key === 'Enter') runSearch(); });
+
+// ---------- Toolbar, dialogs, drag and drop ----------
+$('#zoomIn').addEventListener('click', () => zoomBy(1.25));
+$('#zoomOut').addEventListener('click', () => zoomBy(0.8));
+$('#zoomFit').addEventListener('click', fit);
+const pickFile = () => $('#fileInput').click();
+$('#openBtn').addEventListener('click', pickFile);
+$('#openBtn2').addEventListener('click', pickFile);
+$('#folderBtn').addEventListener('click', openFolder);
+$('#folderBtn2').addEventListener('click', openFolder);
+$('#reloadBtn').addEventListener('click', () => state.dir && reopenFolder(state.dir));
+$('#packBtn').addEventListener('click', exportPack);
+$('#homeLink').addEventListener('click', e => { e.preventDefault(); location.href = location.pathname; });
+document.querySelectorAll('[data-legal]').forEach(b => b.addEventListener('click', () => $('#' + b.dataset.legal).showModal()));
+// click outside closes
+document.querySelectorAll('dialog.legal').forEach(d => d.addEventListener('click', e => { if (e.target === d) d.close(); }));
+$('#fileInput').addEventListener('change', e => { forgetDir(); handleEntries(fromFileList(e.target.files)); e.target.value = ''; });
+$('#folderInput').addEventListener('change', e => {
+  const entries = fromFileList(e.target.files);
+  forgetDir();
+  if (entries.length) handleEntries(entries, entries[0].path.split('/')[0]);
+  e.target.value = '';
+});
+$('#sampleBtn').addEventListener('click', () => { forgetDir(); loadTree(SAMPLE_GED, 'Sample: Hartwell Family (fictional)', samplePhotos()); });
+
+const hasFiles = e => [...(e.dataTransfer?.types || [])].includes('Files');
+let dragDepth = 0;
+addEventListener('dragenter', e => { if (hasFiles(e)) { e.preventDefault(); dragDepth++; $('#drop').hidden = false; } });
+addEventListener('dragover', e => { if (hasFiles(e)) e.preventDefault(); });
+addEventListener('dragleave', e => { if (hasFiles(e) && --dragDepth <= 0) { dragDepth = 0; $('#drop').hidden = true; } });
+addEventListener('drop', async e => {
+  if (!hasFiles(e)) return;
+  e.preventDefault();
+  dragDepth = 0;
+  $('#drop').hidden = true;
+  // grab entries before any await
+  const roots = [...e.dataTransfer.items].map(i => i.webkitGetAsEntry?.()).filter(Boolean);
+  const files = [...e.dataTransfer.files];
+  forgetDir();
+  try {
+    if (roots.length) {
+      const entries = (await Promise.all(roots.map(r => entryFiles(r)))).flat();
+      handleEntries(entries, roots.length === 1 && roots[0].isDirectory ? roots[0].name : undefined);
+    } else {
+      handleEntries(fromFileList(files));
+    }
+  } catch (err) { console.error(err); toast('Could not read what was dropped.'); }
+});
+
+// ---------- Start ----------
+(function init() {
+  const demo = prepare(SAMPLE_GED);
+  // home cards: first portrait per generation
+  for (const [id, f] of matchPhotos(demo.people, samplePhotos()).matched) demo.people.get(id).photo = f.url;
+  const pick = [];
+  for (const p of demo.order) if (p.photo && pick.length < 3 && !pick.some(q => q.gen === p.gen)) pick.push(p);
+  $('#hero').innerHTML = pick.map(p => cardHTML(demo, p, 'mini')).join('');
+
+  const packEl = document.getElementById('pack');
+  if (packEl) {
+    try {
+      const pack = JSON.parse(packEl.textContent);
+      loadTree(pack.ged, pack.title, Object.entries(pack.photos || {}).map(([path, url]) => ({ path, url })));
+    } catch (e) { console.error(e); toast('This shared family file looks damaged.'); }
+    return;
+  }
+
+  // URL params: ?demo, &card=, &flip, &view=deck
+  const q = new URLSearchParams(location.search);
+  if (q.has('demo') && loadTree(SAMPLE_GED, 'Sample: Hartwell Family (fictional)', samplePhotos())) {
+    if (q.get('view') === 'deck') setView('deck');
+    const c = q.get('card');
+    if (c) openCard(c.startsWith('@') ? c : `@${c}@`);
+    if (c && q.has('flip')) {
+      flipper.style.transition = 'none';
+      flip();
+      setTimeout(() => { flipper.style.transition = ''; }, 50);
+    }
+  }
+})();
+</script>
+</body>
+</html>
