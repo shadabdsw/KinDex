@@ -40,11 +40,12 @@ html { -webkit-tap-highlight-color: transparent; }
 /* ---------- Header ---------- */
 .bar {
   flex: none; min-height: 56px; display: flex; align-items: center; justify-content: space-between;
-  gap: 10px 16px; padding: 8px 16px; flex-wrap: wrap;
+  gap: 10px 16px; padding: 8px 16px; position: relative;
   background: rgba(14, 19, 34, .92); border-bottom: 1px solid rgba(255,255,255,.08); z-index: 5;
 }
 body.home .bar { display: none; }
-.brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+/* one row always; the file name gives way first */
+.brand { display: flex; align-items: center; gap: 10px; flex: 1 1 auto; min-width: 0; }
 .home-link { display: flex; align-items: center; gap: 10px; flex: none; color: inherit; text-decoration: none; border-radius: 8px; }
 .home-link:hover .wordmark { filter: brightness(1.15); }
 .home-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
@@ -58,17 +59,40 @@ body.home .bar { display: none; }
   -webkit-background-clip: text; background-clip: text; color: transparent;
   padding-right: .1em; margin-right: -.1em;
 }
-.tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tools { display: flex; align-items: center; gap: 8px; flex: none; }
+/* narrow: tools fold into a dropdown under the floating menu button (14px + 44px + 8px below the header) */
+@media (max-width: 1279px) {
+  #menuBtn:not([hidden]) { display: grid; }
+  .tools {
+    position: absolute; top: calc(100% + 66px); right: 14px; width: min(340px, calc(100vw - 28px));
+    flex-direction: column; align-items: stretch; gap: 10px; padding: 14px; border-radius: 14px;
+    background: #161c2e; border: 1px solid rgba(255,255,255,.14); box-shadow: 0 16px 40px rgba(0,0,0,.55);
+  }
+  .bar:not(.open) .tools { display: none; }
+  .tools .seg { display: flex; }
+  .tools .seg button { flex: 1; padding: 9px 12px; }
+  .tools #search { width: 100%; padding-top: 9px; padding-bottom: 9px; }
+  .tools .btn { padding: 10px 14px; text-align: left; }
+}
 .seg { display: inline-flex; border: 1px solid rgba(255,255,255,.14); border-radius: 10px; overflow: hidden; }
 .seg button { background: transparent; border: 0; padding: 6px 12px; cursor: pointer; min-width: 34px; }
 .seg button + button { border-left: 1px solid rgba(255,255,255,.14); }
 .seg button.on { background: var(--accent); color: #1b1606; font-weight: 700; }
 @media (hover: hover) { .seg button:hover:not(.on) { background: rgba(255,255,255,.08); } }
 .seg button:active:not(.on) { background: rgba(255,255,255,.08); }
+/* search: own icons (inline data, nothing fetched); native list arrow kept but restyled */
 #search {
-  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14); color: var(--ink);
-  border-radius: 10px; padding: 6px 12px; width: 190px; font: inherit;
+  background: rgba(255,255,255,.06) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239aa6c7' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5L20 20'/%3E%3C/svg%3E") 10px 50% / 15px no-repeat;
+  border: 1px solid rgba(255,255,255,.14); color: var(--ink);
+  border-radius: 10px; padding: 6px 10px 6px 32px; width: 210px; font: inherit; line-height: 20px;
 }
+#search:focus { outline: none; border-color: rgba(255,203,61,.7); box-shadow: 0 0 0 3px rgba(255,203,61,.15); }
+#search::placeholder { color: var(--muted); }
+#search::-webkit-calendar-picker-indicator {
+  width: 14px; height: 14px; margin: 0 0 0 6px; padding: 0; color: transparent; opacity: .7; cursor: pointer;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239aa6c7' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") center / 14px no-repeat;
+}
+#search::-webkit-calendar-picker-indicator:hover { opacity: 1; }
 .btn { border-radius: 10px; padding: 8px 16px; cursor: pointer; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.06); }
 /* hover tint: mouse only (no sticky tint on phones); press tint everywhere */
 @media (hover: hover) { .btn:hover { background: rgba(255,255,255,.12); } }
@@ -100,7 +124,34 @@ main { flex: 1; position: relative; min-height: 0; }
 }
 .gen-label small { display: block; font-weight: 600; letter-spacing: .04em; font-size: 11px; color: #c9a43a; }
 
+/* floating buttons under the header (home, keys top-left; menu top-right); .btn tints over a solid base */
+.fabs { position: absolute; top: 14px; left: 14px; z-index: 3; display: flex; gap: 8px; }
+.fabs.right { left: auto; right: 14px; }
+body.home .fabs { display: none; }
+.fab {
+  width: 44px; height: 44px; padding: 0; border-radius: 12px; display: grid; place-items: center; cursor: pointer;
+  color: var(--ink); border: 1px solid rgba(255,255,255,.18);
+  background: linear-gradient(rgba(255,255,255,.06), rgba(255,255,255,.06)), rgba(14,19,34,.92);
+  box-shadow: 0 4px 14px rgba(0,0,0,.4);
+}
+.fab svg { width: 21px; height: 21px; }
+@media (hover: hover) { .fab:hover { background: linear-gradient(rgba(255,255,255,.12), rgba(255,255,255,.12)), rgba(14,19,34,.92); } }
+.fab:active { background: linear-gradient(rgba(255,255,255,.12), rgba(255,255,255,.12)), rgba(14,19,34,.92); }
+.fab:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+/* no keyboard hint on touch screens or phone widths */
+@media (hover: none), (pointer: coarse), (max-width: 640px) { #keysBtn { display: none; } }
+#menuBtn { display: none; }
+.keys { display: grid; grid-template-columns: auto 1fr; gap: 8px 14px; margin: 0 0 16px; color: var(--muted); }
+.keys h3 { grid-column: 1 / -1; margin: 6px 0 0; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink); }
+.keys .k { white-space: nowrap; }
+kbd {
+  display: inline-block; min-width: 1.9em; padding: 2px 7px; border-radius: 6px; text-align: center;
+  font-family: inherit; font-size: 12.5px; font-weight: 600; line-height: 1.4; color: var(--ink);
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.2); border-bottom-width: 2px;
+}
 .deck { position: absolute; inset: 0; overflow: auto; padding: 24px 16px 60px; }
+/* room for the floating buttons where the deck reaches the left edge */
+@media (max-width: 1340px) { .deck { padding-top: 72px; } }
 .deck-gen { max-width: 1200px; margin: 0 auto 32px; }
 .deck-gen h2 { font-size: 18px; margin: 0 0 14px; display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
 .deck-gen h2 span { color: var(--muted); font-size: 13px; font-weight: 600; }
@@ -139,6 +190,10 @@ main { flex: 1; position: relative; min-height: 0; }
 .welcome .actions .ico { width: 18px; height: 18px; flex: none; }
 .btn.sample { border-color: rgba(255,203,61,.55); color: var(--accent); background: rgba(255,203,61,.06); font-weight: 600; }
 .btn.sample:hover { background: rgba(255,203,61,.14); }
+/* plain-words .ged explainer under the buttons */
+.ged-hint { font-size: 13.5px; max-width: 42em; }
+.ged-hint b { color: var(--ink); }
+.link-btn { background: none; border: 0; padding: 0; font: inherit; color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 .privacy { padding: 14px 18px; margin-bottom: 30px; border-radius: 12px; text-align: center; background: rgba(127,214,154,.07); border: 1px solid rgba(127,214,154,.22); }
 .privacy p { color: #9fe0b0; font-size: 14.5px; }
 .privacy p.sub { color: #8fbf9d; font-size: 12.5px; margin-top: 3px; }
@@ -156,7 +211,7 @@ main { flex: 1; position: relative; min-height: 0; }
 .legal h2 { margin: 0 0 12px; font-size: 19px; }
 .legal ul { margin: 0; padding-left: 20px; color: var(--muted); display: grid; gap: 8px; }
 .legal b { color: var(--ink); }
-.legal form { margin: 18px 0 0; text-align: right; }
+.legal form { margin: 18px 0 0; display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
 .hero { position: relative; height: 260px; width: 360px; max-width: 100%; margin: 0 auto; pointer-events: none; }
 .hero .card { top: 10px; left: 50%; margin-left: -80px; }
 .hero .card:nth-child(1) { transform: translateX(-100px) rotate(-12deg) translateY(16px); }
@@ -188,7 +243,7 @@ main { flex: 1; position: relative; min-height: 0; }
   .intro { grid-template-columns: minmax(0, 1fr); gap: 8px; text-align: center; }
   .intro .hero-wrap { order: -1; }
   .logo-big { justify-content: center; }
-  .intro h1, .intro .why { margin-left: auto; margin-right: auto; }
+  .intro h1, .intro .why, .ged-hint { margin-left: auto; margin-right: auto; }
   .welcome .actions { justify-content: center; }
   .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
@@ -254,6 +309,12 @@ main { flex: 1; position: relative; min-height: 0; }
 .c-meta { flex: none; font-size: .9em; text-align: center; opacity: .85; }
 .c-foot { margin-top: auto; flex: none; display: flex; justify-content: space-between; align-items: center; font-size: .78em; font-weight: 700; opacity: .85; }
 .stars { color: #a77800; letter-spacing: .05em; }
+/* KinDex mark: big front footer and back; one-colour inline logo (saved images can't see #kd-logo) */
+.card.big .c-foot { display: grid; grid-template-columns: 1fr auto 1fr; gap: .8em; }
+.card.big .c-foot > :last-child { justify-self: end; }
+.c-mark { display: inline-flex; align-items: center; gap: .3em; opacity: .62; font-weight: 800; letter-spacing: .02em; }
+.c-mark svg { width: 1.4em; height: 1.3em; flex: none; }
+.b-mark { flex: none; justify-content: center; font-size: .48em; opacity: .55; }
 .card.mini .big-only { display: none; }
 
 .shine {
@@ -368,17 +429,21 @@ main { flex: 1; position: relative; min-height: 0; }
 .face.back { transform: rotateY(180deg) translateZ(1px); }
 /* hidden side never takes clicks */
 .flipper:not(.flipped) .face.back, .flipper.flipped .face.front { pointer-events: none; }
-.modal-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.modal-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; order: 1; }
+.modal:focus { outline: none; }
 .nav {
-  position: fixed; top: 50%; transform: translateY(-50%); z-index: 1; width: 48px; height: 48px; border-radius: 50%;
+  position: fixed; top: 50%; transform: translateY(calc(-50% - 25px)); z-index: 1; width: 48px; height: 48px; border-radius: 50%;
   border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.08); cursor: pointer;
   display: grid; place-items: center; padding: 0;
 }
 @media (hover: hover) { .nav:hover { background: rgba(255,255,255,.18); } }
 .nav:active { background: rgba(255,255,255,.18); }
-.nav.prev { left: 16px; } .nav.next { right: 16px; }
+/* desktop: beside the card (--half from sizeModal), lifted to card centre above the buttons; phones: bottom corners */
+.nav.prev { left: max(16px, calc(50% - var(--half, 170px) - 76px)); }
+.nav.next { right: max(16px, calc(50% - var(--half, 170px) - 76px)); }
 @media (max-width: 640px) {
   .nav { top: auto; bottom: 16px; transform: none; }
+  .nav.prev { left: 16px; } .nav.next { right: 16px; }
   #search { width: 140px; }
 }
 
@@ -424,14 +489,27 @@ main { flex: 1; position: relative; min-height: 0; }
       <button id="zoomFit" title="Fit to screen">Fit</button>
       <button id="zoomIn" title="Zoom in" aria-label="Zoom in">+</button>
     </div>
-    <button class="btn small" id="folderBtn2" title="Open a family folder (.ged file + photos)">📁 Folder</button>
-    <button class="btn small" id="openBtn2" title="Open a .ged file (you can select photos with it)">📄 File</button>
+    <button class="btn small" id="openBtn2" title="Open a .ged file (you can select photos with it)">📄 Open File</button>
+    <button class="btn small" id="folderBtn2" title="Open a family folder (.ged file + photos)">📁 Open Folder</button>
     <button class="btn small" id="reloadBtn" title="Re-read the folder to pick up new photos or a new export" hidden>↻ Reload</button>
     <button class="btn small primary dl" id="packBtn" title="Save this tree and its photos as one file you can send to family. Made on your device, never uploaded."><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Download to share</button>
   </div>
 </header>
 
 <main>
+  <div class="fabs">
+    <button class="fab" id="homeBtn" title="Back to the home page" aria-label="Back to the home page">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11L12 4l8.5 7M6 9.2V19a1 1 0 0 0 1 1h3.5v-5.5h3V20H17a1 1 0 0 0 1-1V9.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="fab" id="keysBtn" title="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts" data-legal="keysDlg">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6 9.5h1M9.5 9.5h1M13 9.5h1M16.5 9.5h1M6 12h1M9.5 12h1M13 12h1M16.5 12h1M8 14.8h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <div class="fabs right">
+    <button class="fab" id="menuBtn" title="Menu" aria-label="Menu" aria-expanded="false" aria-controls="tools" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+    </button>
+  </div>
   <section id="viewport" class="viewport" hidden><div id="world" class="world"></div></section>
   <section id="deck" class="deck" hidden></section>
   <!-- Welcome -->
@@ -444,10 +522,11 @@ main { flex: 1; position: relative; min-height: 0; }
           <h1>Your Family as Collectible Cards</h1>
           <p class="why">Made to get young ones curious about their roots, so every ancestor becomes a card worth collecting.</p>
           <div class="actions">
-            <button class="btn primary" id="folderBtn"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4.6l2 2.2h8.4A1.5 1.5 0 0 1 21 8.7v9.8a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5z" fill="currentColor"/></svg>Open family folder</button>
-            <button class="btn" id="openBtn">📄 Open a .ged file</button>
             <button class="btn sample" id="sampleBtn">▶ Try a sample family</button>
+            <button class="btn" id="openBtn">📄 Open a .ged file</button>
+            <button class="btn primary" id="folderBtn"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4.6l2 2.2h8.4A1.5 1.5 0 0 1 21 8.7v9.8a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5z" fill="currentColor"/></svg>Open family folder</button>
           </div>
+          <p class="ged-hint">New to this? A <b>.ged</b> file is simply your family tree, saved from a family tree app. <button type="button" class="link-btn" data-legal="gedDlg">How to get one</button></p>
         </div>
         <div class="hero-wrap"><div class="hero" id="hero"></div></div>
       </div>
@@ -462,7 +541,7 @@ main { flex: 1; position: relative; min-height: 0; }
           <li class="step">
             <span class="num">1</span>
             <h3>Export</h3>
-            <p>Save your tree as a <b>.ged</b> file from any genealogy app.</p>
+            <p>Save your tree as a <b>.ged</b> file from any family tree app.</p>
             <p class="note">Everything on a card comes from this file. KinDex shows it as cards; it never adds or changes anything about your family.</p>
           </li>
           <li class="step">
@@ -507,7 +586,41 @@ main { flex: 1; position: relative; min-height: 0; }
 <div id="drop" class="drop" hidden>Drop a .ged file, photos, or your family folder</div>
 <div id="toast" class="toast" hidden></div>
 
-<!-- Privacy and terms -->
+<!-- Help, privacy and terms -->
+<dialog id="keysDlg" class="legal"><div class="legal-in">
+  <h2>Keyboard shortcuts</h2>
+  <div class="keys">
+    <h3>Tree and collection</h3>
+    <span class="k"><kbd>/</kbd></span><span>Find a person</span>
+    <span class="k"><kbd>T</kbd> <kbd>C</kbd></span><span>Tree or Collection</span>
+    <span class="k"><kbd>+</kbd> <kbd>−</kbd> <kbd>0</kbd></span><span>Zoom in, zoom out, fit the tree</span>
+    <span class="k"><kbd>←</kbd> <kbd>↑</kbd> <kbd>→</kbd> <kbd>↓</kbd></span><span>Move around the tree</span>
+    <span class="k"><kbd>Tab</kbd> <kbd>Enter</kbd></span><span>Pick a card and open it</span>
+    <h3>Open card</h3>
+    <span class="k"><kbd>←</kbd> <kbd>→</kbd></span><span>Previous or next card</span>
+    <span class="k"><kbd>F</kbd></span><span>Flip the card</span>
+    <span class="k"><kbd>S</kbd></span><span>Save the card as an image</span>
+    <span class="k"><kbd>T</kbd></span><span>Show this person in the tree</span>
+    <span class="k"><kbd>Esc</kbd></span><span>Close the card</span>
+    <h3>Anywhere</h3>
+    <span class="k"><kbd>?</kbd></span><span>Show these shortcuts</span>
+  </div>
+  <form method="dialog"><button class="btn small">Close</button></form>
+</div>
+</dialog>
+
+<dialog id="gedDlg" class="legal"><div class="legal-in">
+  <h2>What’s a .ged file?</h2>
+  <ul>
+    <li><b>It’s a family tree.</b> A .ged (GEDCOM) file is the standard file family tree apps use to save who’s who: names, dates, places and how everyone is related.</li>
+    <li><b>Getting one.</b> If your tree is in an app such as Ancestry, MyHeritage, FamilySearch or Family Echo, look for <b>Export</b> or <b>Download</b> and choose <b>GEDCOM</b>.</li>
+    <li><b>No tree yet?</b> Start one in a family tree app by adding relatives one by one, then export it. Older relatives are the best people to ask.</li>
+    <li><b>What KinDex does with it.</b> Every person in the file becomes a collectible card, laid out as your family tree. KinDex only reads the file; it never changes it or sends it anywhere.</li>
+  </ul>
+  <form method="dialog"><button class="btn small sample" id="gedSampleBtn">▶ Try a sample family</button><button class="btn small">Close</button></form>
+</div>
+</dialog>
+
 <dialog id="privacyDlg" class="legal"><div class="legal-in">
   <h2>Privacy</h2>
   <ul>
@@ -535,10 +648,17 @@ main { flex: 1; position: relative; min-height: 0; }
 </dialog>
 
 <!-- Card modal -->
-<div id="modal" class="modal" hidden>
+<div id="modal" class="modal" tabindex="-1" hidden>
   <div class="backdrop" data-close></div>
   <button class="nav prev" id="prevCard" aria-label="Previous card"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  <button class="nav next" id="nextCard" aria-label="Next card"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
   <div class="stage">
+    <div class="modal-actions">
+      <button class="btn small" id="flipBtn">↻ Flip</button>
+      <button class="btn small" id="locateBtn">⌖ Show in tree</button>
+      <button class="btn small" id="saveImgBtn" title="Save the side you are looking at as a PNG image (S)">⬇ Save image</button>
+      <button class="btn small" data-close>✕ Close</button>
+    </div>
     <div class="scaler" id="scaler">
       <div class="zoomer" id="zoomer">
         <div class="flipper" id="flipper">
@@ -547,14 +667,7 @@ main { flex: 1; position: relative; min-height: 0; }
         </div>
       </div>
     </div>
-    <div class="modal-actions">
-      <button class="btn small" id="flipBtn">↻ Flip</button>
-      <button class="btn small" id="locateBtn">⌖ Show in tree</button>
-      <button class="btn small" id="saveImgBtn" title="Save the side you are looking at as a JPG image">⬇ Save image</button>
-      <button class="btn small" data-close>✕ Close</button>
-    </div>
   </div>
-  <button class="nav next" id="nextCard" aria-label="Next card"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
 </div>
 
 <!-- Core: parsing, model, layout; no DOM, Node-testable -->
@@ -1484,6 +1597,12 @@ function flavorText(m, p) {
 }
 
 // ---------- Card markup ----------
+// self-contained one-colour logo; back card shifted clear of the diamond cut-out
+const kdMark = (cls = '') => `<span class="c-mark${cls}"><svg viewBox="-2 4 46 40" fill="currentColor" aria-hidden="true">` +
+  `<rect x="1.5" y="11" width="22" height="30" rx="4" fill-opacity=".5" transform="rotate(-14 12.5 26)"/>` +
+  `<path fill-rule="evenodd" transform="rotate(9 30 22)" d="M23 7h14a4 4 0 0 1 4 4v22a4 4 0 0 1-4 4H23a4 4 0 0 1-4-4V11a4 4 0 0 1 4-4zM30 15l5.5 7-5.5 7-5.5-7z"/>` +
+  `</svg>KinDex</span>`;
+
 function cardFrame(p, size, extraCls, inner, style = '') {
   const t = typeOf(p.surname || p.name);
   const cls = `card ${size} t${p.rarity}${p.deceased ? ' memorial' : ''}${extraCls}`;
@@ -1525,7 +1644,7 @@ function cardHTML(m, p, size, style = '') {
       `<div class="c-stats"><div><small>Siblings</small><b>${p.siblings.length}</b></div>` +
       `<div><small>Children</small><b>${p.children.length}</b></div><div><small>Descendants</small><b>${p.descendants}</b></div></div>` +
       `<div class="c-flavor"><span>${esc(flavorText(m, p))}</span></div>` +
-      `<div class="c-foot"><span>${no}</span><span><span class="stars">${stars}</span> ${TIERS[p.rarity].name}</span></div>`;
+      `<div class="c-foot"><span>${no}</span>${kdMark()}<span><span class="stars">${stars}</span> ${TIERS[p.rarity].name}</span></div>`;
   }, style);
 }
 
@@ -1553,7 +1672,7 @@ function backHTML(m, p) {
     add('Siblings', relList(p.siblings));
     add('Notes', esc(p.notes.join('\n\n')), 'notes');
     return `<div class="b-head"><span class="c-type">${t.icon}</span><div><b>Family Record</b><small>${esc(p.name)} · GEN ${p.gen} · ${TIERS[p.rarity].name}</small></div></div>` +
-      `<div class="b-body"><dl class="rec">${rows.join('')}</dl></div>` +
+      `<div class="b-body"><dl class="rec">${rows.join('')}</dl></div>` + kdMark(' b-mark') +
       `<div class="b-hint">Tap a name to jump to their card · tap elsewhere to flip</div>`;
   });
 }
@@ -1592,6 +1711,7 @@ function loadTree(text, label, photos = []) {
   $('#welcome').hidden = true;
   document.body.classList.remove('home');
   $('#tools').hidden = false;
+  $('#menuBtn').hidden = false;
   setView('tree');
   fit();
   return { photoCount: matched.size, unused };
@@ -1613,7 +1733,7 @@ async function handleEntries(entries, folderName) {
   } else {
     toast(images.length
       ? 'Open a .ged file first, or pick it together with the photos.'
-      : 'No .ged file found. Export your tree as GEDCOM from your genealogy app and put it in this folder.');
+      : 'No .ged file found. Export your tree as GEDCOM from your family tree app and put it in this folder.');
     return;
   }
   if (!result || (!images.length && geds.length < 2)) return;
@@ -1787,6 +1907,7 @@ function highlight(id) {
   el.classList.remove('found');
   void el.offsetWidth;
   el.classList.add('found');
+  el.addEventListener('animationend', () => el.classList.remove('found'), { once: true });
 }
 
 // pan + zoom; capture only once dragging, so clicks reach cards
@@ -1852,6 +1973,7 @@ $('#deck').addEventListener('click', e => { const c = e.target.closest('.card');
 
 function setView(v) {
   state.view = v;
+  document.querySelectorAll('.card.found').forEach(c => c.classList.remove('found'));
   viewport.hidden = v !== 'tree';
   $('#deck').hidden = v !== 'deck';
   $('#zoomSeg').hidden = v !== 'tree';
@@ -1870,6 +1992,8 @@ let tilt = { rx: 0, ry: 0 };
 
 function applyFlip() {
   flipper.classList.toggle('flipped', state.flipped);
+  $('#faceFront').inert = state.flipped;
+  $('#faceBack').inert = !state.flipped;
   flipper.style.transform = `rotateX(${tilt.rx}deg) rotateY(${tilt.ry + (state.flipped ? 180 : 0)}deg)`;
 }
 function sizeModal() {
@@ -1878,6 +2002,7 @@ function sizeModal() {
   $('#scaler').style.width = 340 * s + 'px';
   $('#scaler').style.height = 476 * s + 'px';
   $('#zoomer').style.transform = `scale(${s})`;
+  modal.style.setProperty('--half', 170 * s + 'px');
 }
 // shrink long names to 60%, then ellipsis
 function fitName(el) {
@@ -1886,9 +2011,12 @@ function fitName(el) {
   const full = parseFloat(getComputedStyle(el).fontSize);
   for (let px = full; el.scrollWidth > el.clientWidth && px > full * 0.6; px -= 0.5) el.style.fontSize = px + 'px';
 }
+// open card: page behind is inert, so Tab and Enter stay on the card
+let lastFocus = null;
 function openCard(id) {
   const m = state.m, p = m?.people.get(id);
   if (!p) return;
+  if (modal.hidden) lastFocus = document.activeElement;
   state.current = id;
   state.flipped = false;
   $('#faceFront').innerHTML = cardHTML(m, p, 'big');
@@ -1897,6 +2025,8 @@ function openCard(id) {
   flipper.classList.remove('tilting');
   applyFlip();
   modal.hidden = false;
+  $('.bar').inert = $('main').inert = true;
+  if (!modal.contains(document.activeElement)) modal.focus({ preventScroll: true });
   sizeModal();
   fitName($('#faceFront .c-name'));
   const sc = $('#scaler');
@@ -1905,12 +2035,16 @@ function openCard(id) {
   sc.style.animation = '';
   sway();
 }
-function closeModal() { modal.hidden = true; }
+function closeModal() {
+  modal.hidden = true;
+  $('.bar').inert = $('main').inert = false;
+  lastFocus?.focus?.({ preventScroll: true });
+}
 
 // ---------- Save image ----------
-// visible side -> SVG foreignObject -> canvas; photos as data URLs
+// visible side -> SVG foreignObject -> canvas; photos as data URLs; card only, transparent corners
 async function cardImageBlob(card, type = 'image/png', quality, SCALE = 3) {
-  const W = 340, H = 476, PAD = 24;
+  const W = 340, H = 476;
   const clone = card.cloneNode(true);
   clone.querySelector('.b-hint')?.remove();
   const dst = clone.querySelectorAll('img');
@@ -1927,13 +2061,13 @@ async function cardImageBlob(card, type = 'image/png', quality, SCALE = 3) {
   });
   const wrap = document.createElement('div');
   wrap.className = 'snap';
-  wrap.setAttribute('style', `width:${W}px;height:${H}px;padding:${PAD}px;box-sizing:content-box;` +
+  wrap.setAttribute('style', `width:${W}px;height:${H}px;` +
     'font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif');
   const css = document.createElement('style');
   css.textContent = [...document.querySelectorAll('style')].map(s => s.textContent).join('\n') +
-    '.snap .card.big{animation:none;box-shadow:0 .3em 1em rgba(0,0,0,.35)}.snap .b-body{overflow:hidden}';
+    '.snap .card.big{animation:none;box-shadow:none}.snap .card.big.t5{box-shadow:inset 0 0 0 .16em #ffd24d}.snap .b-body{overflow:hidden}';
   wrap.append(css, clone);
-  const w = W + 2 * PAD, h = H + 2 * PAD;
+  const w = W, h = H;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w * SCALE}" height="${h * SCALE}" viewBox="0 0 ${w} ${h}">` +
     `<foreignObject width="100%" height="100%">${new XMLSerializer().serializeToString(wrap)}</foreignObject></svg>`;
   const img = new Image();
@@ -1954,10 +2088,10 @@ async function saveCardImage() {
   const btn = $('#saveImgBtn');
   btn.disabled = true;
   try {
-    const blob = await cardImageBlob(card, 'image/jpeg', 0.92);
+    const blob = await cardImageBlob(card, 'image/png');
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `${p.name.replace(/[\\/:*?"<>|]+/g, ' ').trim()} - KinDex card${state.flipped ? ' (back)' : ''}.jpg`;
+    a.download = `${p.name.replace(/[\\/:*?"<>|]+/g, ' ').trim()} - KinDex card${state.flipped ? ' (back)' : ''}.png`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -2043,13 +2177,6 @@ $('#locateBtn').addEventListener('click', () => {
   centerOn(id);
   setTimeout(() => highlight(id), 300);
 });
-document.addEventListener('keydown', e => {
-  if (modal.hidden) return;
-  if (e.key === 'Escape') closeModal();
-  else if (e.key === 'ArrowLeft') step(-1);
-  else if (e.key === 'ArrowRight') step(1);
-  else if (e.key.toLowerCase() === 'f') flip();
-});
 document.addEventListener('touchstart', () => {}, { passive: true }); // iOS: needed for :active
 addEventListener('resize', () => { if (!modal.hidden) sizeModal(); });
 
@@ -2066,6 +2193,7 @@ function runSearch() {
   // clear once found (datalist filters by box text)
   box.value = '';
   box.blur();
+  setMenu(false);
   if (state.view === 'tree') centerOn(p.id);
   setTimeout(() => highlight(p.id), state.view === 'tree' ? 300 : 0);
 }
@@ -2083,7 +2211,11 @@ $('#folderBtn').addEventListener('click', openFolder);
 $('#folderBtn2').addEventListener('click', openFolder);
 $('#reloadBtn').addEventListener('click', () => state.dir && reopenFolder(state.dir));
 $('#packBtn').addEventListener('click', exportPack);
-$('#homeLink').addEventListener('click', e => { e.preventDefault(); location.href = location.pathname; });
+// home: fresh load of the page, no params
+const goHome = e => { e.preventDefault(); location.href = location.pathname; };
+$('#homeLink').addEventListener('click', goHome);
+$('#homeBtn').addEventListener('click', goHome);
+$('#gedSampleBtn').addEventListener('click', () => $('#sampleBtn').click());
 document.querySelectorAll('[data-legal]').forEach(b => b.addEventListener('click', () => $('#' + b.dataset.legal).showModal()));
 // click outside closes
 document.querySelectorAll('dialog.legal').forEach(d => d.addEventListener('click', e => { if (e.target === d) d.close(); }));
@@ -2106,11 +2238,18 @@ addEventListener('drop', async e => {
   e.preventDefault();
   dragDepth = 0;
   $('#drop').hidden = true;
-  // grab entries before any await
-  const roots = [...e.dataTransfer.items].map(i => i.webkitGetAsEntry?.()).filter(Boolean);
+  // grab entries and handles before any await; a folder handle (Chromium) allows Reload, like the picker
+  const items = [...e.dataTransfer.items];
+  const handles = items.map(i => i.getAsFileSystemHandle?.()).filter(Boolean);
+  const roots = items.map(i => i.webkitGetAsEntry?.()).filter(Boolean);
   const files = [...e.dataTransfer.files];
   forgetDir();
   try {
+    const h = handles.length === 1 ? await handles[0].catch(() => null) : null;
+    if (h?.kind === 'directory') {
+      try { await loadFromHandle(h); return; }
+      catch (err) { console.warn(err); forgetDir(); }
+    }
     if (roots.length) {
       const entries = (await Promise.all(roots.map(r => entryFiles(r)))).flat();
       handleEntries(entries, roots.length === 1 && roots[0].isDirectory ? roots[0].name : undefined);
@@ -2118,6 +2257,63 @@ addEventListener('drop', async e => {
       handleEntries(fromFileList(files));
     }
   } catch (err) { console.error(err); toast('Could not read what was dropped.'); }
+});
+
+// ---------- Menu and keyboard ----------
+const bar = $('.bar'), menuBtn = $('#menuBtn'), tools = $('#tools');
+// button sits apart from the panel: focus goes back to it on close
+function setMenu(open) {
+  if (!open && bar.classList.contains('open') && tools.contains(document.activeElement)) menuBtn.focus();
+  bar.classList.toggle('open', open);
+  menuBtn.setAttribute('aria-expanded', String(open));
+}
+// opened by keyboard (detail 0): focus the first tool
+menuBtn.addEventListener('click', e => {
+  const open = !bar.classList.contains('open');
+  setMenu(open);
+  if (open && !e.detail) tools.querySelector('button').focus();
+});
+// picking a tool closes the menu; zoom stays open for repeat clicks
+tools.addEventListener('click', e => { if (e.target.closest('button') && !e.target.closest('#zoomSeg')) setMenu(false); });
+document.addEventListener('pointerdown', e => { if (!e.target.closest('.bar, #menuBtn')) setMenu(false); });
+
+// shortcuts: not while typing, in a dialog, with modifiers or before a tree is open
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey || e.metaKey || e.altKey || !state.m) return;
+  if (document.querySelector('dialog[open]')) return;
+  const k = e.key, key = k.toLowerCase();
+  if (e.target.matches?.('input, textarea, select')) {
+    if (k === 'Escape') { e.target.blur(); setMenu(false); }
+    return;
+  }
+  if (k === '?') $('#keysDlg').showModal();
+  else if (!modal.hidden) {
+    if (k === 'Escape') closeModal();
+    else if (k === 'ArrowLeft') step(-1);
+    else if (k === 'ArrowRight') step(1);
+    else if (key === 'f') flip();
+    else if (key === 's') $('#saveImgBtn').click();
+    else if (key === 't') $('#locateBtn').click();
+    else return;
+  } else if (k === '/') {
+    if (getComputedStyle(menuBtn).display !== 'none') setMenu(true);
+    $('#search').focus();
+  } else if (k === 'Escape') setMenu(false);
+  else if (key === 't') setView('tree');
+  else if (key === 'c') setView('deck');
+  else if (state.view !== 'tree') return;
+  else if (k === '+' || k === '=') zoomBy(1.25);
+  else if (k === '-' || k === '_') zoomBy(0.8);
+  else if (k === '0') fit();
+  else if (k.startsWith('Arrow')) {
+    const d = 80;
+    if (k === 'ArrowLeft') view.tx += d;
+    else if (k === 'ArrowRight') view.tx -= d;
+    else if (k === 'ArrowUp') view.ty += d;
+    else view.ty -= d;
+    applyView();
+  } else return;
+  e.preventDefault();
 });
 
 // ---------- Start ----------
@@ -2131,6 +2327,8 @@ addEventListener('drop', async e => {
 
   const packEl = document.getElementById('pack');
   if (packEl) {
+    // shared file reopens its own tree, so no home page to go back to
+    $('#homeBtn').hidden = true;
     try {
       const pack = JSON.parse(packEl.textContent);
       loadTree(pack.ged, pack.title, Object.entries(pack.photos || {}).map(([path, url]) => ({ path, url })));

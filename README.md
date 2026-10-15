@@ -6,7 +6,7 @@ The name comes from **Kin** + **Index**: a card index of your kin, the people in
 
 - **Private by design.** Everything happens in your browser. Your family tree and photos are never uploaded anywhere.
 - **Nothing to install.** KinDex is a single web page that works in any modern browser, on a computer or a phone.
-- **Works with your genealogy app.** It reads the standard GEDCOM file that almost every family tree app can export.
+- **Works with your family tree app.** It reads the standard GEDCOM file that almost all of them can export.
 
 ## Why KinDex?
 
@@ -20,7 +20,7 @@ Want to see it first? Click **▶ Try a sample family** on the home page to expl
 
 ## What is GEDCOM?
 
-GEDCOM (`.ged`) is the standard file format genealogy apps use to exchange family trees. It holds names, dates, places, relationships and notes, so you can move a tree from one app to another.
+GEDCOM (`.ged`) is the standard file format family tree apps use to save and exchange trees. It holds names, dates, places, relationships and notes, so you can move a tree from one app to another.
 
 You can export one from Family Echo, Ancestry, MyHeritage, FamilySearch, Gramps, RootsMagic, Legacy, PAF and most other family tree apps. Look for an option like **Export**, **Download** or **Share** and choose **GEDCOM**. In Family Echo, for example, it's *Share → Export → GEDCOM*.
 
@@ -32,7 +32,7 @@ A GEDCOM file doesn't contain the photos themselves. That's why KinDex lets you 
 
 ### 1. Export your tree
 
-Export your family tree as a `.ged` file from your genealogy app.
+Export your family tree as a `.ged` file from your family tree app.
 
 ### 2. Add photos (optional)
 
@@ -63,7 +63,7 @@ To update your cards later, export the tree again over the old `.ged` file or ad
 
 ## What you'll see
 
-Everything on a card comes from your GEDCOM file and your photos: names, dates, places, relationships, notes and pictures. KinDex doesn't add, change or check any details about your family. It only shows what your file already contains, in the style of a collectible card. If something on a card is missing or wrong, fix it in your genealogy app and export the file again.
+Everything on a card comes from your GEDCOM file and your photos: names, dates, places, relationships, notes and pictures. KinDex doesn't add, change or check any details about your family. It only shows what your file already contains, in the style of a collectible card. If something on a card is missing or wrong, fix it in your family tree app and export the file again.
 
 The game-style parts of a card, its rarity, type and card number, are just for fun. KinDex works them out from the tree itself.
 
@@ -90,7 +90,7 @@ Click any card to open it.
 
 - Click a relative's name to jump to their card.
 - Click anywhere else on the card, or **↻ Flip**, to turn it over.
-- Use the arrow keys for the previous or next card, `F` to flip and `Esc` to close.
+- Use the arrow keys for the previous or next card, `F` to flip, `S` to save an image, `T` to show the person in the tree and `Esc` to close. Press `?` or the keyboard button to see every shortcut.
 - **⬇ Save image** saves the side you're looking at as a picture.
 - **⌖ Show in tree** takes you to that person in the family tree.
 
